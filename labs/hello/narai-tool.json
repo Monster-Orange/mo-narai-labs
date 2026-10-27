@@ -1,0 +1,22 @@
+{
+  "id": "narai-labs/hello",
+  "version": "0.1.0",
+  "sdk": "^1",
+  "publisher": { "name": "Narai Labs", "url": "https://michinar.ai" },
+  "surfaces": { "embed": { "url": "https://hello.tools.michinar.dev/0.1.0/", "sdk": "^1" } },
+  "preset_schema": "hello.options@1",
+  "answers": { "pick": "hello.choice@1" },
+  "assist": "honors",
+  "locales": ["en", "ja"],
+  "capabilities": { "audio_out": false, "microphone": false, "network": "none" },
+  "payloads": {
+    "hello.options@1": {
+      "type": "object", "additionalProperties": false, "required": ["options"],
+      "properties": { "options": { "type": "array", "minItems": 2, "maxItems": 6, "items": { "type": "string", "maxLength": 40 } } }
+    },
+    "hello.choice@1": {
+      "type": "object", "additionalProperties": false, "required": ["choice"],
+      "properties": { "choice": { "type": "string", "maxLength": 40 } }
+    }
+  }
+}

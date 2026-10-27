@@ -5,6 +5,7 @@ one. If a tool here needs something the SDK doesn't give, that is a finding (see
 
 | Tool | What it is |
 | --- | --- |
+| [`labs/hello`](labs/hello) | The smallest tool: one question, a few buttons, and the pick is the answer. The course's first sample (its `#region` blocks are quoted there, so keep them whole). |
 | [`labs/fretboard`](labs/fretboard) | A guitar neck: shows a note, a scale or an interval; the learner picks positions and sends what they played (`music.played@1`). The Tutor can `highlight` and `clear`. |
 | [`labs/hostile`](labs/hostile) | A tool that conforms on paper and then tries everything it shouldn't: verdicts, oversized and malformed payloads, undeclared activities and commands, forged messages. Its tests prove each attempt is stopped. |
 
