@@ -1,0 +1,158 @@
+{
+  "id": "narai-labs/intervals",
+  "version": "0.1.0",
+  "sdk": "^1",
+  "publisher": {
+    "name": "Narai Labs",
+    "url": "https://michinar.ai"
+  },
+  "surfaces": {
+    "embed": {
+      "url": "https://intervals.tools.michinar.dev/0.1.0/",
+      "sdk": "^1"
+    }
+  },
+  "preset_schema": "music.interval-preset@1",
+  "answers": {
+    "name_interval": "music.interval-named@1",
+    "play_interval": "music.played@2"
+  },
+  "commands": {
+    "replay": "music.none@1"
+  },
+  "assist": "honors",
+  "locales": [
+    "en",
+    "ja"
+  ],
+  "capabilities": {
+    "audio_out": true,
+    "microphone": false,
+    "network": "none"
+  },
+  "payloads": {
+    "music.interval-preset@1": {
+      "description": "What the trainer plays: one note (the learner plays the interval above it) or two (the learner names the interval). The notes are the sound, never the answer key: Narai holds the key and judges.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "notes"
+      ],
+      "properties": {
+        "notes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-G]#?-?\\d$"
+          }
+        }
+      }
+    },
+    "music.interval-named@1": {
+      "description": "The interval the learner named, as a short name (m3 is a minor third).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "interval"
+      ],
+      "properties": {
+        "interval": {
+          "enum": [
+            "P1",
+            "m2",
+            "M2",
+            "m3",
+            "M3",
+            "P4",
+            "TT",
+            "P5",
+            "m6",
+            "M6",
+            "m7",
+            "M7",
+            "P8"
+          ]
+        }
+      }
+    },
+    "music.played@2": {
+      "description": "What the learner played, in order: each note's pitch (scientific pitch notation) and when (ms from the start). A judge reads only pitch and at_ms, never position, so any instrument answers in this type. @1 required a guitar position on every note.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "notes"
+      ],
+      "properties": {
+        "notes": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pitch",
+              "at_ms"
+            ],
+            "properties": {
+              "pitch": {
+                "type": "string",
+                "pattern": "^[A-G]#?-?\\d$"
+              },
+              "at_ms": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "position": {
+                "description": "Where on the instrument it was played: display data, never judged.",
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "string",
+                      "fret"
+                    ],
+                    "properties": {
+                      "string": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 6
+                      },
+                      "fret": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 24
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "key"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 127,
+                        "description": "The key's MIDI number."
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "music.none@1": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {}
+    }
+  }
+}
