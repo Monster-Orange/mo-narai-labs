@@ -1,7 +1,6 @@
 name: ci
 on:
-  pull_request:
-  workflow_dispatch:
+  workflow_dispatch: # by hand only: make preflight is the gate (the Actions cost cut)
 permissions:
   contents: read
 jobs:

@@ -30,4 +30,5 @@ person to try it) and `e2e.mjs` (a headless run of the harness that asserts what
 ## The gate
 
 `make preflight` (or `pnpm preflight`): check-imports, lint, typecheck, tests, build. `make e2e` drives each tool
-through the SDK's harness headless. Run both before you hand anything off; CI runs the same on pull requests.
+through the SDK's harness headless. Run both before you hand anything off: they are the gate. CI runs the same, by hand only (`workflow_dispatch`), as
+in mo-narai since the Actions cost cut.
