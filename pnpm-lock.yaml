@@ -41,15 +41,15 @@ importers:
 
   labs/fretboard:
     dependencies:
-      '@narai/sdk':
-        specifier: git+https://github.com/Monster-Orange/mo-narai-sdk.git#bab481635f386a415a0926cca4d4dc45d04b28a3
-        version: git+https://git@github.com:Monster-Orange/mo-narai-sdk.git#bab481635f386a415a0926cca4d4dc45d04b28a3
+      '@michinarai/sdk':
+        specifier: git+https://github.com/Monster-Orange/mo-narai-sdk.git#d7a46345a878b2857de4f25c878b19ae545c16b9
+        version: https://codeload.github.com/Monster-Orange/mo-narai-sdk/tar.gz/d7a46345a878b2857de4f25c878b19ae545c16b9
 
   labs/hostile:
     dependencies:
-      '@narai/sdk':
-        specifier: git+https://github.com/Monster-Orange/mo-narai-sdk.git#bab481635f386a415a0926cca4d4dc45d04b28a3
-        version: git+https://git@github.com:Monster-Orange/mo-narai-sdk.git#bab481635f386a415a0926cca4d4dc45d04b28a3
+      '@michinarai/sdk':
+        specifier: git+https://github.com/Monster-Orange/mo-narai-sdk.git#d7a46345a878b2857de4f25c878b19ae545c16b9
+        version: https://codeload.github.com/Monster-Orange/mo-narai-sdk/tar.gz/d7a46345a878b2857de4f25c878b19ae545c16b9
 
 packages:
 
@@ -270,17 +270,17 @@ packages:
   '@jridgewell/sourcemap-codec@1.6.0':
     resolution: {integrity: sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw==}
 
+  '@michinarai/sdk@https://codeload.github.com/Monster-Orange/mo-narai-sdk/tar.gz/d7a46345a878b2857de4f25c878b19ae545c16b9':
+    resolution: {tarball: https://codeload.github.com/Monster-Orange/mo-narai-sdk/tar.gz/d7a46345a878b2857de4f25c878b19ae545c16b9}
+    version: 0.1.0
+    engines: {node: '>=20'}
+
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     resolution: {integrity: sha512-oTXEIha4SsuXdTA4Iyskj0kpdx2yVXdhd75c2v3xGrHFfVMsbhTPZU/nMPL4sWKo4pBHm3aucLaqGlF696dTyQ==}
     engines: {node: ^22.20 || ^24.12 || >=25}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
-
-  '@narai/sdk@git+https://git@github.com:Monster-Orange/mo-narai-sdk.git#bab481635f386a415a0926cca4d4dc45d04b28a3':
-    resolution: {commit: bab481635f386a415a0926cca4d4dc45d04b28a3, repo: git@github.com:Monster-Orange/mo-narai-sdk.git, type: git}
-    version: 0.0.0
-    engines: {node: '>=20'}
 
   '@oxc-project/types@0.155.0':
     resolution: {integrity: sha512-SeE8JPwW1xs1tHeNycjUtUBdhorRa8o4jlvjwk49R7/Z291i+4DQa7JJIgOm/TaYQZx+QrPQbVJ/9c8dMIZN8Q==}
@@ -1448,12 +1448,12 @@ snapshots:
 
   '@jridgewell/sourcemap-codec@1.6.0': {}
 
-  '@napi-rs/lzma-linux-x64-gnu@1.5.1':
-    optional: true
-
-  '@narai/sdk@git+https://git@github.com:Monster-Orange/mo-narai-sdk.git#bab481635f386a415a0926cca4d4dc45d04b28a3':
+  '@michinarai/sdk@https://codeload.github.com/Monster-Orange/mo-narai-sdk/tar.gz/d7a46345a878b2857de4f25c878b19ae545c16b9':
     dependencies:
       ajv: 8.20.0
+
+  '@napi-rs/lzma-linux-x64-gnu@1.5.1':
+    optional: true
 
   '@oxc-project/types@0.155.0': {}
 

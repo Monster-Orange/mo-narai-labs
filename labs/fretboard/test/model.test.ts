@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { VERDICT_KEYS } from "@narai/sdk";
+import { VERDICT_KEYS } from "@michinarai/sdk";
 import { answer, highlighted, readPreset, shown, toggle, type Preset } from "../src/model.ts";
 
 function preset(show: unknown): Preset {

@@ -1,13 +1,13 @@
 # Working rules for agents in this repository
 
-Narai Labs is where Narai builds tools for its own lessons the way any publisher would: on the public `@narai/sdk`
+Narai Labs is where Narai builds tools for its own lessons the way any publisher would: on the public `@michinarai/sdk`
 and nothing else. It is the Tool Platform's dogfood (Monster-Orange/mo-narai#1285). What it costs to build here is
 what it costs a third party, so friction is the product of this repository, not a nuisance to route around.
 
 ## The rules
 
-- **The public SDK only.** A tool's `src/` imports its own files and `@narai/sdk` (with its subpaths), nothing
-  else; its runtime dependencies name `@narai/sdk` alone. No imports from mo-narai, no copied platform code, no
+- **The public SDK only.** A tool's `src/` imports its own files and `@michinarai/sdk` (with its subpaths), nothing
+  else; its runtime dependencies name `@michinarai/sdk` alone. No imports from mo-narai, no copied platform code, no
   private endpoints. `pnpm check:imports` fails a breach, and it runs first in `pnpm preflight`.
 - **The SDK is pinned to a commit** (`git+https://…/mo-narai-sdk.git#<sha>`), the same in every tool. Moving the pin
   is its own commit, with every tool's tests green on the new head.

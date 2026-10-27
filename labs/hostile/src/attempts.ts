@@ -1,21 +1,28 @@
 // What the hostile tool tries (Tool Platform study, Dogfood › The hostile tool; the Planner's slice 1). Each attempt is
 // something a tool page can actually do: call the public SDK with what its manifest doesn't allow, write to its port
-// around the SDK, or, as another page, post to the tool's window. Each names who must stop it:
+// around the SDK, post to its parent window around the port, or, as another page, post to the tool's window. Each names
+// who must stop it:
 //   thrown   the SDK refuses it on the tool's side, before anything is sent (ToolMessageError or an Error)
 //   refused  it is sent, and Narai's host refuses it (the host's onRefused), never reaching a handler
-//   ignored  a message from another page on the tool's window, which the tool's session never takes
-// The tests (test/hostile.test.ts) run every attempt through the SDK's kit (@narai/sdk/testing); the page (main.ts)
+//   ignored  a message that doesn't come over the port, which neither side ever takes
+// The tests (test/hostile.test.ts) run every attempt through the SDK's kit (@michinarai/sdk/testing); the page (main.ts)
 // runs them in the harness.
-import type { Payload, ToolSession } from "@narai/sdk";
+import type { Payload, ToolSession } from "@michinarai/sdk";
 
 export type Expect = "thrown" | "refused" | "ignored";
 
 export interface Attempt {
   name: string;
   expect: Expect;
-  /** `tool`: the hostile tool's SDK session; `forge`: a raw message onto its port, around the SDK; `postToTool`: a
-   *  message on the tool's window from another page (`origin`). */
-  run(ctx: { tool: ToolSession; forge(message: unknown): void; postToTool(message: unknown, origin: string): void }): void;
+  /** `tool`: the hostile tool's SDK session; `forge`: a raw message onto its port, around the SDK; `postToHost`: a
+   *  message to its parent window, around the port; `postToTool`: a message on the tool's window from another page
+   *  (`origin`). */
+  run(ctx: {
+    tool: ToolSession;
+    forge(message: unknown): void;
+    postToHost(message: unknown): void;
+    postToTool(message: unknown, origin: string): void;
+  }): void;
 }
 
 /** The launch and the task the tests start the hostile tool with (test/hostile.test.ts). */
@@ -37,6 +44,10 @@ export const ATTEMPTS: readonly Attempt[] = [
     run: ({ forge }) => forge({ type: "tool.answer", v: 1, launch: LAUNCH, task: TASK, payload: pick({ correct: true }) }) },
   { name: "an answer written onto the port around the SDK, under another launch", expect: "refused",
     run: ({ forge }) => forge({ type: "tool.answer", v: 1, launch: "lch_forgedforged", task: TASK, payload: pick() }) },
+  { name: "an answer posted to the parent window, around the port", expect: "ignored",
+    run: ({ postToHost }) => postToHost({ type: "tool.answer", v: 1, launch: LAUNCH, task: TASK, payload: pick() }) },
+  { name: "a second hello, asking the host for another port", expect: "ignored",
+    run: ({ postToHost }) => postToHost({ type: "tool.hello", v: 1 }) },
   { name: "a connect from another page, offering the tool a second port", expect: "ignored",
     run: ({ postToTool }) => postToTool({ type: "narai.tool.connect", v: 1 }, "https://elsewhere.example") },
 ];

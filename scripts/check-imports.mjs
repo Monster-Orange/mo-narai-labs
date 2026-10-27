@@ -1,6 +1,6 @@
-// The dogfood's one rule (Tool Platform study D11): a labs tool is built ONLY on the public @narai/sdk, as a third
-// party would be. Every import in a tool's src/ is its own file or @narai/sdk (and its subpaths); nothing reaches out of
-// the tool's folder (mo-narai, another tool); its runtime dependencies name @narai/sdk alone. Build tools (vite,
+// The dogfood's one rule (Tool Platform study D11): a labs tool is built ONLY on the public @michinarai/sdk, as a third
+// party would be. Every import in a tool's src/ is its own file or @michinarai/sdk (and its subpaths); nothing reaches out of
+// the tool's folder (mo-narai, another tool); its runtime dependencies name @michinarai/sdk alone. Build tools (vite,
 // vitest, typescript) are dev dependencies and never imported by src/.
 //
 //   node scripts/check-imports.mjs [ROOT]
@@ -8,7 +8,7 @@ import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { join, relative, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const ALLOWED = /^@narai\/sdk(\/.*)?$/;
+const ALLOWED = /^@michinarai\/sdk(\/.*)?$/;
 const SOURCE = /\.(ts|tsx|js|mjs)$/;
 
 const walk = (d) => readdirSync(d).flatMap((f) => {
@@ -37,7 +37,7 @@ export function breaches(root) {
     const pkg = join(dir, "package.json");
     if (existsSync(pkg)) {
       const deps = Object.keys(JSON.parse(readFileSync(pkg, "utf8")).dependencies ?? {});
-      for (const d of deps) if (!ALLOWED.test(d)) out.push(`${relative(root, pkg)}: runtime dependency ${d} (only @narai/sdk)`);
+      for (const d of deps) if (!ALLOWED.test(d)) out.push(`${relative(root, pkg)}: runtime dependency ${d} (only @michinarai/sdk)`);
     }
     const src = join(dir, "src");
     if (!existsSync(src)) continue;
@@ -47,7 +47,7 @@ export function breaches(root) {
           const target = resolve(dirname(file), spec);
           if (!target.startsWith(dir + "/")) out.push(`${relative(root, file)}: ${spec} reaches outside ${tool}/`);
         } else if (!ALLOWED.test(spec)) {
-          out.push(`${relative(root, file)}: imports ${spec} (only @narai/sdk)`);
+          out.push(`${relative(root, file)}: imports ${spec} (only @michinarai/sdk)`);
         }
       }
     }
@@ -59,6 +59,6 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1
   const root = resolve(process.argv[2] ?? join(dirname(fileURLToPath(import.meta.url)), ".."));
   const found = breaches(root);
   for (const b of found) console.error(`check-imports: ${b}`);
-  console.log(`check-imports: ${found.length ? `${found.length} breach(es)` : "every tool imports only @narai/sdk"}`);
+  console.log(`check-imports: ${found.length ? `${found.length} breach(es)` : "every tool imports only @michinarai/sdk"}`);
   process.exit(found.length ? 1 : 0);
 }

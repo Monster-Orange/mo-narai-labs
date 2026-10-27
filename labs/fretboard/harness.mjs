@@ -4,8 +4,8 @@
 //
 //   node harness.mjs [show]     show: interval (default) | note | scale | practice (the scale, no task)
 import { readFileSync } from "node:fs";
-import { defineTool } from "@narai/sdk";
-import { startHarness } from "@narai/sdk/harness";
+import { defineTool } from "@michinarai/sdk";
+import { startHarness } from "@michinarai/sdk/harness";
 
 export const SHOWS = {
   interval: { show: { kind: "interval", root: "A3", interval: "M3" }, task: { id: "itm_maj3_A3", kind: "play_target", assist: "none", prompt: "Play the note a major third above A3." } },

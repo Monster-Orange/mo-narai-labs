@@ -1,6 +1,6 @@
 # Narai Labs
 
-Tools Narai builds for its own lessons, built **only on the public `@narai/sdk`**, the way any publisher would build
+Tools Narai builds for its own lessons, built **only on the public `@michinarai/sdk`**, the way any publisher would build
 one. If a tool here needs something the SDK doesn't give, that is a finding (see `FINDINGS.md`), not a shortcut.
 
 | Tool | What it is |

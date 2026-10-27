@@ -1,8 +1,8 @@
 // The fretboard against the SDK, both sides: its manifest is one the SDK takes, its answers and the Tutor's commands
 // cross a real channel, and what the manifest doesn't declare doesn't.
 import { afterEach, describe, expect, it } from "vitest";
-import { manifestProblems, type Command } from "@narai/sdk";
-import { launch } from "@narai/sdk/testing";
+import { manifestProblems, type Command } from "@michinarai/sdk";
+import { launch } from "@michinarai/sdk/testing";
 import { manifest } from "../src/manifest.ts";
 import { answer, toggle } from "../src/model.ts";
 

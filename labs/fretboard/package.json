@@ -12,6 +12,6 @@
     "e2e": "vite build && node e2e.mjs"
   },
   "dependencies": {
-    "@narai/sdk": "git+https://github.com/Monster-Orange/mo-narai-sdk.git#bab481635f386a415a0926cca4d4dc45d04b28a3"
+    "@michinarai/sdk": "git+https://github.com/Monster-Orange/mo-narai-sdk.git#d7a46345a878b2857de4f25c878b19ae545c16b9"
   }
 }

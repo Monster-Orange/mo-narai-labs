@@ -1,8 +1,8 @@
-// The page Narai frames, and every line of it that talks to Narai: through @narai/sdk alone, as any publisher's tool.
+// The page Narai frames, and every line of it that talks to Narai: through @michinarai/sdk alone, as any publisher's tool.
 // The start says what to show (the step's preset) and, when Narai judges an item, the task; the learner's picks go back
 // as the task's answer; the Tutor may `highlight` and `clear`, nothing else (the manifest says so, and the SDK holds
 // both sides to it).
-import { connect, type Payload } from "@narai/sdk";
+import { connect, type Payload } from "@michinarai/sdk";
 import { manifest } from "./manifest.ts";
 import { mountFretboard } from "./fretboard.ts";
 import { readPreset } from "./model.ts";

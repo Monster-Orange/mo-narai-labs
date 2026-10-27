@@ -2,7 +2,7 @@
 // stopped, by the SDK before sending or by Narai's host after, and none reaches a handler. A new attempt in
 // src/attempts.ts is tested here with nothing else to write.
 import { afterEach, describe, expect, it } from "vitest";
-import { launch } from "@narai/sdk/testing";
+import { launch } from "@michinarai/sdk/testing";
 import { manifest } from "../src/manifest.ts";
 import { ATTEMPTS, LAUNCH, TASK } from "../src/attempts.ts";
 
@@ -23,7 +23,7 @@ describe("narai-labs/hostile", () => {
       await h.settle();
       let thrown: unknown = null;
       try {
-        attempt.run({ tool: h.tool, forge: h.forge, postToTool: (message, origin) => h.postToTool(message, { origin }) });
+        attempt.run({ tool: h.tool, forge: h.forge, postToHost: (message) => h.postToHost(message), postToTool: (message, origin) => h.postToTool(message, { origin }) });
       } catch (e) { thrown = e; }
       await h.settle();
       expect(h.received.answers, "no answer reached Narai").toEqual([]);
@@ -37,6 +37,7 @@ describe("narai-labs/hostile", () => {
       } else {
         expect(thrown).toBeNull();
         expect(h.received.refused).toEqual([]);
+        expect(h.connects, "the host connected the tool once, and only once").toHaveLength(1);
         // the session it would have replaced still works
         h.tool.answer({ schema: "hostile.pick@1", choice: "B" });
         await h.settle();

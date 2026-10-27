@@ -1,6 +1,6 @@
 // The hostile tool's page: connects like any tool, says it's ready, then runs every attempt and lists what happened to
 // each on the page (the harness shows the host's side). It conforms on paper; nothing it tries should get through.
-import { connect } from "@narai/sdk";
+import { connect } from "@michinarai/sdk";
 import { manifest } from "./manifest.ts";
 import { ATTEMPTS } from "./attempts.ts";
 
@@ -12,7 +12,8 @@ for (const attempt of ATTEMPTS) {
   let outcome = "sent";
   try {
     // in a page the port is the SDK's: a raw write goes to the parent window, around it, where the host takes nothing
-    attempt.run({ tool, forge: (m) => window.parent.postMessage(m, "*"), postToTool: (m) => window.postMessage(m, "*") });
+    const toParent = (m: unknown) => window.parent.postMessage(m, "*");
+    attempt.run({ tool, forge: toParent, postToHost: toParent, postToTool: (m) => window.postMessage(m, "*") });
   } catch (e) {
     outcome = `thrown: ${(e as Error).message}`;
   }
