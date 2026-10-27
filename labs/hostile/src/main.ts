@@ -11,7 +11,8 @@ const list = document.createElement("ol");
 for (const attempt of ATTEMPTS) {
   let outcome = "sent";
   try {
-    attempt.run({ tool, parent: window.parent });
+    // in a page the port is the SDK's: a raw write goes to the parent window, around it, where the host takes nothing
+    attempt.run({ tool, forge: (m) => window.parent.postMessage(m, "*"), postToTool: (m) => window.postMessage(m, "*") });
   } catch (e) {
     outcome = `thrown: ${(e as Error).message}`;
   }

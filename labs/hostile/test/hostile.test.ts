@@ -2,24 +2,17 @@
 // stopped, by the SDK before sending or by Narai's host after, and none reaches a handler. A new attempt in
 // src/attempts.ts is tested here with nothing else to write.
 import { afterEach, describe, expect, it } from "vitest";
-import type { Answer, Practice } from "@narai/sdk";
+import { launch } from "@narai/sdk/testing";
 import { manifest } from "../src/manifest.ts";
-import { ATTEMPTS } from "../src/attempts.ts";
-import { launch, tick } from "./wire.ts";
+import { ATTEMPTS, LAUNCH, TASK } from "../src/attempts.ts";
 
-const TASK = { id: "itm_hostile", kind: "pick", assist: "none" as const, prompt: "Pick one." };
 let close = () => {};
 afterEach(() => close());
 
-async function hostile() {
-  const got = { answers: [] as Answer[], practice: [] as Practice[], refused: [] as { reason: string }[] };
-  const run = await launch(manifest, { launch: "lch_hostile0001", locale: "en", task: TASK,
-    onAnswer: (a) => got.answers.push(a), onPractice: (p) => got.practice.push(p), onRefused: (r) => got.refused.push(r) });
+async function hostile(options: Parameters<typeof launch>[1] = {}) {
+  const run = await launch(manifest, { launch: LAUNCH, locale: "en", task: { id: TASK, kind: "pick", assist: "none", prompt: "Pick one." }, ...options });
   close = run.close;
-  // what the hostile tool posts to its parent, around the SDK, reaches the host's window as from its frame
-  const forged: unknown[] = [];
-  const parent = { postMessage: (message: unknown, origin: string) => { forged.push(message); run.parent.postMessage(message, origin); } };
-  return { ...run, got, parent, forged };
+  return run;
 }
 
 describe("narai-labs/hostile", () => {
@@ -27,49 +20,58 @@ describe("narai-labs/hostile", () => {
     it(`${attempt.name}: ${attempt.expect}`, async () => {
       const h = await hostile();
       h.tool.ready("en");
-      await tick();
+      await h.settle();
       let thrown: unknown = null;
-      try { attempt.run({ tool: h.tool, parent: h.parent }); } catch (e) { thrown = e; }
-      await tick();
-      expect(h.got.answers, "no answer reached Narai").toEqual([]);
-      expect(h.got.practice, "no practice reached Narai").toEqual([]);
+      try {
+        attempt.run({ tool: h.tool, forge: h.forge, postToTool: (message, origin) => h.postToTool(message, { origin }) });
+      } catch (e) { thrown = e; }
+      await h.settle();
+      expect(h.received.answers, "no answer reached Narai").toEqual([]);
+      expect(h.received.practice, "no practice reached Narai").toEqual([]);
       if (attempt.expect === "thrown") {
         expect(thrown, "the SDK refused it before sending").toBeInstanceOf(Error);
-        expect(h.got.refused).toEqual([]);
+        expect(h.received.refused).toEqual([]);
       } else if (attempt.expect === "refused") {
         expect(thrown).toBeNull();
-        expect(h.got.refused.length, "Narai's host refused it").toBeGreaterThan(0);
+        expect(h.received.refused.length, "Narai's host refused it").toBeGreaterThan(0);
       } else {
         expect(thrown).toBeNull();
-        expect(h.forged.length, "it was posted").toBeGreaterThan(0);
+        expect(h.received.refused).toEqual([]);
+        // the session it would have replaced still works
+        h.tool.answer({ schema: "hostile.pick@1", choice: "B" });
+        await h.settle();
+        expect(h.received.answers).toHaveLength(1);
+        h.received.answers.length = 0;
       }
     });
   }
 
-  // A gap the hostile tool found: the host takes all 1,000 (mo-narai-sdk#6). `fails` until a limit lands; then it turns
-  // red here, and becomes an `it`.
-  it.fails("a flood of practice, 1,000 reports at once: the host takes no more than its limit (mo-narai-sdk#6)", async () => {
-    const h = await hostile();
+  // Found by this tool (mo-narai-sdk#6, fixed in bab4816): a flood of practice reports is cut at the host's limit, 10 at
+  // once and then 6 a minute; the rest are refused, never handled.
+  it("a flood of practice, 1,000 reports at once: the host takes its burst of 10 and refuses the rest", async () => {
+    const h = await hostile({ now: () => 0 });
     h.tool.ready("en");
     for (let i = 0; i < 1000; i++) h.tool.practice("drill", { duration_s: 1, attempts: 1, payload: { schema: "hostile.drill@1", count: i } });
-    await tick();
-    expect(h.got.practice.length).toBeLessThan(1000);
+    await h.settle();
+    expect(h.received.practice).toHaveLength(10);
+    expect(h.received.refused).toHaveLength(990);
+    expect(new Set(h.received.refused.map((r) => r.reason)).size).toBe(1);
   });
 
   it("an answer before tool.ready: refused by the host", async () => {
     const h = await hostile();
     h.tool.answer({ schema: "hostile.pick@1", choice: "B" });
-    await tick();
-    expect(h.got.answers).toEqual([]);
-    expect(h.got.refused.map((r) => r.reason)).toEqual(["tool.answer before tool.ready"]);
+    await h.settle();
+    expect(h.received.answers).toEqual([]);
+    expect(h.received.refused.map((r) => r.reason)).toEqual(["tool.answer before tool.ready"]);
   });
 
   it("the honest answer, for contrast, gets through", async () => {
     const h = await hostile();
     h.tool.ready("en");
     h.tool.answer({ schema: "hostile.pick@1", choice: "B" });
-    await tick();
-    expect(h.got.refused).toEqual([]);
-    expect(h.got.answers).toHaveLength(1);
+    await h.settle();
+    expect(h.received.refused).toEqual([]);
+    expect(h.received.answers).toHaveLength(1);
   });
 });

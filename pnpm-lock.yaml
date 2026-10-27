@@ -42,14 +42,14 @@ importers:
   labs/fretboard:
     dependencies:
       '@narai/sdk':
-        specifier: git+https://github.com/Monster-Orange/mo-narai-sdk.git#9cecf601410925992fcb3371008dacc43d6da792
-        version: git+https://git@github.com:Monster-Orange/mo-narai-sdk.git#9cecf601410925992fcb3371008dacc43d6da792
+        specifier: git+https://github.com/Monster-Orange/mo-narai-sdk.git#bab481635f386a415a0926cca4d4dc45d04b28a3
+        version: git+https://git@github.com:Monster-Orange/mo-narai-sdk.git#bab481635f386a415a0926cca4d4dc45d04b28a3
 
   labs/hostile:
     dependencies:
       '@narai/sdk':
-        specifier: git+https://github.com/Monster-Orange/mo-narai-sdk.git#9cecf601410925992fcb3371008dacc43d6da792
-        version: git+https://git@github.com:Monster-Orange/mo-narai-sdk.git#9cecf601410925992fcb3371008dacc43d6da792
+        specifier: git+https://github.com/Monster-Orange/mo-narai-sdk.git#bab481635f386a415a0926cca4d4dc45d04b28a3
+        version: git+https://git@github.com:Monster-Orange/mo-narai-sdk.git#bab481635f386a415a0926cca4d4dc45d04b28a3
 
 packages:
 
@@ -277,8 +277,8 @@ packages:
     os: [linux]
     libc: [glibc]
 
-  '@narai/sdk@git+https://git@github.com:Monster-Orange/mo-narai-sdk.git#9cecf601410925992fcb3371008dacc43d6da792':
-    resolution: {commit: 9cecf601410925992fcb3371008dacc43d6da792, repo: git@github.com:Monster-Orange/mo-narai-sdk.git, type: git}
+  '@narai/sdk@git+https://git@github.com:Monster-Orange/mo-narai-sdk.git#bab481635f386a415a0926cca4d4dc45d04b28a3':
+    resolution: {commit: bab481635f386a415a0926cca4d4dc45d04b28a3, repo: git@github.com:Monster-Orange/mo-narai-sdk.git, type: git}
     version: 0.0.0
     engines: {node: '>=20'}
 
@@ -1451,7 +1451,7 @@ snapshots:
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     optional: true
 
-  '@narai/sdk@git+https://git@github.com:Monster-Orange/mo-narai-sdk.git#9cecf601410925992fcb3371008dacc43d6da792':
+  '@narai/sdk@git+https://git@github.com:Monster-Orange/mo-narai-sdk.git#bab481635f386a415a0926cca4d4dc45d04b28a3':
     dependencies:
       ajv: 8.20.0
 
