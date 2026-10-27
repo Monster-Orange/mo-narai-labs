@@ -15,8 +15,10 @@ export interface Mark { position: Position; role: "shown" | "root" | "tutor" }
 
 /** What a played note carries: its pitch, when (ms from the start), and where (display data, never graded). */
 export interface Played { pitch: string; at_ms: number; position: Position }
-/** music.played@1: what the learner played, in order. No verdict, at any depth. */
-export type Answer = { schema: "music.played@1"; notes: Played[] };
+/** music.played@2: what the learner played, in order. No verdict, at any depth. Its position is optional (a guitar
+ *  position or a key), so any instrument answers in it; a judge reads pitch and at_ms only. @1 (0.1.0) required a guitar
+ *  position on every note: a changed shape is a new version, and @1 keeps its meaning. */
+export type Answer = { schema: "music.played@2"; notes: Played[] };
 
 export const DEFAULT_FRETS = 12;
 
@@ -57,7 +59,7 @@ export function toggle(picks: readonly Played[], position: Position, at_ms: numb
 
 /** The answer for what was picked, in the order it was played. */
 export function answer(picks: readonly Played[]): Answer {
-  return { schema: "music.played@1", notes: [...picks].sort((a, b) => a.at_ms - b.at_ms).map((p) => ({ ...p, position: { ...p.position } })) };
+  return { schema: "music.played@2", notes: [...picks].sort((a, b) => a.at_ms - b.at_ms).map((p) => ({ ...p, position: { ...p.position } })) };
 }
 
 /** A preset as the step wrote it, or null when it isn't one this tool shows. */

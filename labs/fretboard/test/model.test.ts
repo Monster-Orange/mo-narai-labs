@@ -45,7 +45,7 @@ describe("the Tutor's highlight and the learner's answer", () => {
     picks = toggle(picks, { string: 1, fret: 5 }, 1200); // taken back
     picks = toggle(picks, { string: 3, fret: 2 }, 300);
     const a = answer(picks);
-    expect(a).toEqual({ schema: "music.played@1", notes: [
+    expect(a).toEqual({ schema: "music.played@2", notes: [
       { pitch: "A3", at_ms: 300, position: { string: 3, fret: 2 } },
       { pitch: "C#4", at_ms: 900, position: { string: 2, fret: 2 } },
     ] });

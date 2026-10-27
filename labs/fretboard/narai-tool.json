@@ -1,6 +1,6 @@
 {
   "id": "narai-labs/fretboard",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "sdk": "^1",
   "publisher": {
     "name": "Narai Labs",
@@ -8,13 +8,13 @@
   },
   "surfaces": {
     "embed": {
-      "url": "https://fretboard.tools.michinar.dev/0.1.0/",
+      "url": "https://fretboard.tools.michinar.dev/0.2.0/",
       "sdk": "^1"
     }
   },
   "preset_schema": "music.neck-preset@1",
   "answers": {
-    "play_target": "music.played@1"
+    "play_target": "music.played@2"
   },
   "commands": {
     "highlight": "music.notes@1",
@@ -137,7 +137,8 @@
         }
       }
     },
-    "music.played@1": {
+    "music.played@2": {
+      "description": "What the learner played, in order: each note's pitch (scientific pitch notation) and when (ms from the start). A judge reads only pitch and at_ms, never position, so any instrument answers in this type. @1 required a guitar position on every note.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -152,8 +153,7 @@
             "additionalProperties": false,
             "required": [
               "pitch",
-              "at_ms",
-              "position"
+              "at_ms"
             ],
             "properties": {
               "pitch": {
@@ -165,24 +165,44 @@
                 "minimum": 0
               },
               "position": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "string",
-                  "fret"
-                ],
-                "properties": {
-                  "string": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 6
+                "description": "Where on the instrument it was played: display data, never judged.",
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "string",
+                      "fret"
+                    ],
+                    "properties": {
+                      "string": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 6
+                      },
+                      "fret": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 24
+                      }
+                    }
                   },
-                  "fret": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 24
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "key"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 127,
+                        "description": "The key's MIDI number."
+                      }
+                    }
                   }
-                }
+                ]
               }
             }
           }

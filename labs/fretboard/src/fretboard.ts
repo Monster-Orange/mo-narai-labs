@@ -1,6 +1,6 @@
 // The fretboard on the page: a guitar neck drawn in SVG, every position a button. It shows what the preset asks (a
 // note, a scale, an interval), the Tutor's highlights, and the learner's picks. On a task Narai judges it shows Narai's
-// prompt (already in the learner's language), and Send hands the picks to `onAnswer` as a music.played@1 answer. It never
+// prompt (already in the learner's language), and Send hands the picks to `onAnswer` as a music.played@2 answer. It never
 // says whether they are right, and with the task's assist off it hides what would give the answer away.
 import { STANDARD, pitchAt, same, type Position } from "./theory.ts";
 import { answer, highlighted, shown, toggle, type Answer, type Mark, type Played, type Preset } from "./model.ts";
