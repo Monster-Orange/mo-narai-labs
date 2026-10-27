@@ -1,0 +1,215 @@
+{
+  "id": "narai-labs/fretboard",
+  "version": "0.1.0",
+  "sdk": "^1",
+  "publisher": {
+    "name": "Narai Labs",
+    "url": "https://michinar.ai"
+  },
+  "surfaces": {
+    "embed": {
+      "url": "https://fretboard.tools.michinar.dev/0.1.0/",
+      "sdk": "^1"
+    }
+  },
+  "preset_schema": "music.neck-preset@1",
+  "answers": {
+    "play_target": "music.played@1"
+  },
+  "commands": {
+    "highlight": "music.notes@1",
+    "clear": "music.none@1"
+  },
+  "assist": "honors",
+  "locales": [
+    "en",
+    "ja"
+  ],
+  "capabilities": {
+    "audio_out": false,
+    "microphone": false,
+    "network": "none"
+  },
+  "payloads": {
+    "music.neck-preset@1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instrument",
+        "tuning",
+        "show"
+      ],
+      "properties": {
+        "instrument": {
+          "const": "guitar"
+        },
+        "tuning": {
+          "const": "standard"
+        },
+        "frets": {
+          "type": "integer",
+          "minimum": 5,
+          "maximum": 24,
+          "default": 12
+        },
+        "show": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "note"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "note"
+                },
+                "note": {
+                  "type": "string",
+                  "pattern": "^[A-G][#b]?$"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "key",
+                "scale"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "scale"
+                },
+                "key": {
+                  "type": "string",
+                  "pattern": "^[A-G][#b]?$"
+                },
+                "scale": {
+                  "enum": [
+                    "major",
+                    "natural-minor",
+                    "major-pentatonic",
+                    "minor-pentatonic",
+                    "blues"
+                  ]
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "root",
+                "interval"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "interval"
+                },
+                "root": {
+                  "type": "string",
+                  "pattern": "^[A-G][#b]?-?\\d$"
+                },
+                "interval": {
+                  "enum": [
+                    "P1",
+                    "m2",
+                    "M2",
+                    "m3",
+                    "M3",
+                    "P4",
+                    "TT",
+                    "P5",
+                    "m6",
+                    "M6",
+                    "m7",
+                    "M7",
+                    "P8"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "music.played@1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "notes"
+      ],
+      "properties": {
+        "notes": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pitch",
+              "at_ms",
+              "position"
+            ],
+            "properties": {
+              "pitch": {
+                "type": "string",
+                "pattern": "^[A-G]#?-?\\d$"
+              },
+              "at_ms": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "position": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "string",
+                  "fret"
+                ],
+                "properties": {
+                  "string": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 6
+                  },
+                  "fret": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 24
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "music.notes@1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "notes"
+      ],
+      "properties": {
+        "notes": {
+          "type": "array",
+          "maxItems": 24,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-G][#b]?(-?\\d)?$"
+          }
+        }
+      }
+    },
+    "music.none@1": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {}
+    }
+  }
+}

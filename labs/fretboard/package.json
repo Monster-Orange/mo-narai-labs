@@ -1,0 +1,17 @@
+{
+  "name": "@narai-labs/fretboard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "narai-labs/fretboard: a guitar neck that shows a note, a scale or an interval and reports what the learner played.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite build && node harness.mjs",
+    "build": "vite build",
+    "typecheck": "tsc -p .",
+    "test": "vitest run",
+    "e2e": "vite build && node e2e.mjs"
+  },
+  "dependencies": {
+    "@narai/sdk": "git+https://github.com/Monster-Orange/mo-narai-sdk.git#9cecf601410925992fcb3371008dacc43d6da792"
+  }
+}

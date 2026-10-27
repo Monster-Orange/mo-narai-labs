@@ -1,0 +1,22 @@
+{
+  "id": "narai-labs/hostile",
+  "version": "0.1.0",
+  "sdk": "^1",
+  "publisher": { "name": "Narai Labs", "url": "https://michinar.ai" },
+  "surfaces": { "embed": { "url": "https://hostile.tools.michinar.dev/0.1.0/", "sdk": "^1" } },
+  "answers": { "pick": "hostile.pick@1" },
+  "practice": { "drill": "hostile.drill@1" },
+  "commands": { "ping": "hostile.none@1" },
+  "capabilities": { "audio_out": false, "microphone": false, "network": "none" },
+  "payloads": {
+    "hostile.pick@1": {
+      "type": "object", "additionalProperties": false, "required": ["choice"],
+      "properties": { "choice": { "type": "string", "maxLength": 64 } }
+    },
+    "hostile.drill@1": {
+      "type": "object", "additionalProperties": false, "required": ["count"],
+      "properties": { "count": { "type": "integer", "minimum": 0 } }
+    },
+    "hostile.none@1": { "type": "object", "additionalProperties": false, "properties": {} }
+  }
+}

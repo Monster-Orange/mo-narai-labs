@@ -1,0 +1,15 @@
+{
+  "name": "@narai-labs/hostile",
+  "version": "0.1.0",
+  "private": true,
+  "description": "narai-labs/hostile: a tool that conforms on paper and tries everything it shouldn't. Every attempt must be stopped by the SDK or Narai's host.",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "typecheck": "tsc -p .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@narai/sdk": "git+https://github.com/Monster-Orange/mo-narai-sdk.git#9cecf601410925992fcb3371008dacc43d6da792"
+  }
+}

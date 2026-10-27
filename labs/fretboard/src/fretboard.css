@@ -1,0 +1,38 @@
+/* The fretboard's own look: a quiet neck, Narai's greens for what is shown, a warm accent for the Tutor's highlight.
+   Light and dark follow the learner's system; a Narai theme handshake would come through the SDK. */
+:root {
+  --paper: #fcfbf6; --ink: #20261d; --muted: #5e6858; --wood: #efe6d2; --fret: #b9ad92; --string: #7b8474;
+  --shown: #628c3f; --root: #3c6029; --tutor: #cf5b24; --picked: #3e5a94; --on: #fcfbf6;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #1a1f17; --ink: #edebe0; --muted: #99a18d; --wood: #2e362a; --fret: #616a57; --string: #99a18d;
+    --shown: #85ae60; --root: #a3c482; --tutor: #e07a42; --picked: #8aa3d6; --on: #1a1f17;
+    color-scheme: dark;
+  }
+}
+body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.4 system-ui, sans-serif; }
+#tool { padding: 12px; display: grid; gap: 12px; }
+.neck { width: 100%; height: auto; background: var(--wood); border-radius: 10px; }
+.nut { stroke: var(--ink); stroke-width: 5; }
+.fret { stroke: var(--fret); stroke-width: 2; }
+.inlay { fill: var(--fret); opacity: 0.6; }
+.string { stroke: var(--string); }
+.string.s1, .string.s2, .string.s3 { stroke-width: 1.2; }
+.string.s4, .string.s5, .string.s6 { stroke-width: 2.2; }
+.spot { cursor: pointer; }
+.spot circle { fill: transparent; stroke: none; }
+.spot:hover circle, .spot:focus-visible circle { fill: color-mix(in oklab, var(--picked) 25%, transparent); }
+.spot:focus-visible { outline: none; }
+.spot:focus-visible circle { stroke: var(--picked); stroke-width: 2; }
+.spot.shown circle { fill: var(--shown); }
+.spot.root circle { fill: var(--root); }
+.spot.tutor circle { fill: var(--tutor); }
+.spot.picked circle { fill: var(--picked); stroke: var(--on); stroke-width: 2; }
+.answer-bar { display: flex; justify-content: flex-end; gap: 8px; }
+.answer-bar button { font: inherit; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--shown); cursor: pointer; }
+.answer-bar .primary { background: var(--root); color: var(--on); border-color: var(--root); }
+.answer-bar .quiet { background: transparent; color: var(--root); }
+.answer-bar button:disabled { opacity: 0.45; cursor: default; }
+.prompt { margin: 0; font-weight: 600; }

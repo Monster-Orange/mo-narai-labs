@@ -1,0 +1,1 @@
+{ "name": "bad", "dependencies": { "@narai/sdk": "0.0.0", "react": "19.0.0" } }

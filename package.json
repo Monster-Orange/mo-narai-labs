@@ -1,0 +1,38 @@
+{
+  "name": "mo-narai-labs",
+  "private": true,
+  "description": "Narai Labs: tools Narai builds for its own lessons, only on the public @narai/sdk (the Tool Platform's dogfood).",
+  "type": "module",
+  "packageManager": "pnpm@10.28.2",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "pnpm -r --if-present build",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "lint": "eslint . --max-warnings=0",
+    "test": "node --test scripts/test/*.test.mjs && pnpm -r --if-present test",
+    "check:imports": "node scripts/check-imports.mjs",
+    "preflight": "pnpm check:imports && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "dev": "pnpm --filter @narai-labs/fretboard dev",
+    "e2e": "pnpm -r --if-present e2e"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@playwright/test": "1.63.0",
+    "@types/node": "22.20.5",
+    "ajv": "8.17.1",
+    "eslint": "9.39.5",
+    "globals": "14.0.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.1",
+    "vite": "8.3.1",
+    "vitest": "3.2.7"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@narai/sdk",
+      "esbuild"
+    ]
+  }
+}
