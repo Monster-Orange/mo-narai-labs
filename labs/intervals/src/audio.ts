@@ -7,6 +7,7 @@ export interface Player {
   play(notes: readonly number[], gap?: number): void;
 }
 
+// #region play
 export function webAudio(): Player {
   let ctx: AudioContext | null = null;
   return {
@@ -27,3 +28,4 @@ export function webAudio(): Player {
     },
   };
 }
+// #endregion play

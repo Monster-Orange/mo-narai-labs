@@ -1,7 +1,8 @@
 // The page Narai frames, and every line of it that talks to Narai: through @michinarai/sdk alone, as any publisher's tool.
 // The start says what to play (the step's preset) and, when Narai judges an item, the task; its kind says whether the
 // learner names the interval or plays it, and what they did goes back as the task's answer. The Tutor may `replay`,
-// nothing else (the manifest says so, and the SDK holds both sides to it).
+// nothing else (the manifest says so, and the SDK holds both sides to it). The course quotes the #region blocks here,
+// in model.ts and in audio.ts (narai-tools, demo "The interval trainer"): keep each one whole and short.
 import { connect } from "@michinarai/sdk";
 import { manifest } from "./manifest.ts";
 import { webAudio } from "./audio.ts";
@@ -13,6 +14,7 @@ import "./intervals.css";
 const root = document.getElementById("tool");
 if (!root) throw new Error("intervals: no #tool");
 
+// #region session
 const session = await connect(manifest, { hostOrigins: ["https://michinar.ai"] });
 const preset = readPreset(session.start.preset);
 const task = session.task;
@@ -28,3 +30,4 @@ if (!preset || mode === null) {
   tool.start(preset, { locale, task: task && mode !== "free" ? { prompt: task.prompt, mode } : null });
   session.ready(locale);
 }
+// #endregion session

@@ -17,11 +17,13 @@ export interface Played { pitch: string; at_ms: number; position: { key: number 
 export type PlayedAnswer = { schema: "music.played@2"; notes: Played[] };
 export type Answer = Named | PlayedAnswer;
 
+// #region mode
 /** The task's item kind as this trainer's mode (the manifest's `answers`); free play without a task. */
 export function modeOf(kind: string | null): Mode | null {
   if (kind === null) return "free";
   return kind === "name_interval" ? "name" : kind === "play_interval" ? "play" : null;
 }
+// #endregion mode
 
 /** The keyboard's keys: two octaves from the C at or below the lowest note. */
 export function keys(preset: Preset): number[] {
