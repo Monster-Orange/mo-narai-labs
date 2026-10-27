@@ -49,6 +49,7 @@ describe("narai-labs/hostile", () => {
 
   // Found by this tool (mo-narai-sdk#6, fixed in bab4816): a flood of practice reports is cut at the host's limit, 10 at
   // once and then 6 a minute; the rest are refused, never handled.
+  // #region flood
   it("a flood of practice, 1,000 reports at once: the host takes its burst of 10 and refuses the rest", async () => {
     const h = await hostile({ now: () => 0 });
     h.tool.ready("en");
@@ -58,6 +59,7 @@ describe("narai-labs/hostile", () => {
     expect(h.received.refused).toHaveLength(990);
     expect(new Set(h.received.refused.map((r) => r.reason)).size).toBe(1);
   });
+  // #endregion flood
 
   it("an answer before tool.ready: refused by the host", async () => {
     const h = await hostile();
