@@ -23,7 +23,6 @@ export function readPreset(value: unknown): Preset | null {
   return { schema: "music.tal-preset@1", tal: v.tal as TalName, tempo_bpm: bpm };
 }
 
-// #region batch
 /** One practice report (the SDK's PracticeReport) for the `free_tap` activity. */
 export interface Report { duration_s: number; attempts: number; payload: Taps }
 
@@ -41,6 +40,7 @@ export function practiceBatch(beats: number, everyMs = 60_000) {
       }
       pending.push(at);
     },
+    // #region take
     /** The report due now (`force`: the page is going away), or null. */
     take(now: number, force = false): Report | null {
       if (pending.length === 0 || since === null || (!force && now - last < everyMs)) return null;
@@ -51,6 +51,6 @@ export function practiceBatch(beats: number, everyMs = 60_000) {
       last = now;
       return report;
     },
+    // #endregion take
   };
 }
-// #endregion batch

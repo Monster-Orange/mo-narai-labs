@@ -1,7 +1,7 @@
 // The page Narai frames, and every line of it that talks to Narai: through @michinarai/sdk alone, as any publisher's tool.
 // The start says which cycle and how fast (the step's preset) and, when Narai judges an item, the task: the taps go
 // back as its answer. Without a task the learner taps freely, and that goes to Narai as practice, batched under the
-// host's limit. The course quotes the #region blocks here and in model.ts (narai-tools, demo "The rhythm tapper"): keep
+// host's limit. The course quotes the #region blocks here, in model.ts and in harness.mjs (narai-tools, demo "The rhythm tapper"): keep
 // each one whole and short.
 import { connect } from "@michinarai/sdk";
 import { manifest } from "./manifest.ts";
