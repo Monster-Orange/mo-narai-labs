@@ -9,6 +9,7 @@ import { startHarness } from "@michinarai/sdk/harness";
 export const PRESET = { schema: "hello.options@1", options: ["A", "B", "C"] };
 export const TASK = { id: "itm_hello", kind: "pick", assist: "none", prompt: "Which letter comes after A?" };
 
+// #region harness
 export async function harness(ports = {}) {
   const manifest = defineTool(JSON.parse(readFileSync(new URL("./narai-tool.json", import.meta.url), "utf8")));
   return startHarness({
@@ -16,6 +17,7 @@ export async function harness(ports = {}) {
     preset: PRESET, task: TASK, ...ports,
   });
 }
+// #endregion harness
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const h = await harness();
