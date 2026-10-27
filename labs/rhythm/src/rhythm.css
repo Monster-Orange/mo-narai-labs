@@ -1,0 +1,33 @@
+/* The tapper's own look, the labs palette: the beat sounding now in Narai's green, a division's first beat marked.
+   Light and dark follow the learner's system. */
+:root {
+  --paper: #fcfbf6; --ink: #20261d; --muted: #5e6858; --cell: #efe6d2; --edge: #b9ad92;
+  --shown: #628c3f; --root: #3c6029; --on: #fcfbf6;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #1a1f17; --ink: #edebe0; --muted: #99a18d; --cell: #2e362a; --edge: #616a57;
+    --shown: #85ae60; --root: #a3c482; --on: #1a1f17;
+    color-scheme: dark;
+  }
+}
+body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.4 system-ui, sans-serif; }
+#tool { padding: 12px; display: grid; gap: 12px; }
+button { font: inherit; cursor: pointer; }
+.prompt { margin: 0; font-weight: 600; }
+.cycle { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.beat { background: var(--cell); border-radius: 8px; padding: 10px 4px; display: grid; gap: 2px; justify-items: center; min-height: 52px; }
+.beat.starts { border-left: 3px solid var(--edge); }
+.beat.now { background: var(--shown); color: var(--on); }
+.bol { font-weight: 600; }
+.hand { font-size: 12px; color: var(--muted); }
+.beat.now .hand { color: var(--on); }
+.tap { min-height: 96px; border-radius: 16px; border: 2px solid var(--root); background: transparent; color: var(--root); font-size: 20px; font-weight: 600; touch-action: manipulation; }
+.tap:active { background: var(--root); color: var(--on); }
+.answer-bar { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
+.count { margin-right: auto; color: var(--muted); font-variant-numeric: tabular-nums; }
+.answer-bar button { padding: 8px 16px; border-radius: 999px; border: 1px solid var(--shown); }
+.answer-bar .primary { background: var(--root); color: var(--on); border-color: var(--root); }
+.answer-bar .quiet { background: transparent; color: var(--root); }
+.answer-bar button:disabled { opacity: 0.45; cursor: default; }

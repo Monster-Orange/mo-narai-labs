@@ -1,0 +1,17 @@
+{
+  "name": "@narai-labs/rhythm",
+  "version": "0.1.0",
+  "private": true,
+  "description": "narai-labs/rhythm: a rhythm tapper. The learner taps a t\u0101l cycle; free play is reported as practice, in batches.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite build && node harness.mjs",
+    "build": "vite build",
+    "typecheck": "tsc -p .",
+    "test": "vitest run",
+    "e2e": "vite build && node e2e.mjs"
+  },
+  "dependencies": {
+    "@michinarai/sdk": "git+https://github.com/Monster-Orange/mo-narai-sdk.git#d7a46345a878b2857de4f25c878b19ae545c16b9"
+  }
+}

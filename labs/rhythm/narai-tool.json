@@ -1,0 +1,72 @@
+{
+  "id": "narai-labs/rhythm",
+  "version": "0.1.0",
+  "sdk": "^1",
+  "publisher": {
+    "name": "Narai Labs",
+    "url": "https://michinar.ai"
+  },
+  "surfaces": {
+    "embed": {
+      "url": "https://rhythm.tools.michinar.dev/0.1.0/",
+      "sdk": "^1"
+    }
+  },
+  "preset_schema": "music.tal-preset@1",
+  "answers": {
+    "tap_cycle": "music.taps@1"
+  },
+  "practice": {
+    "free_tap": "music.taps@1"
+  },
+  "locales": [
+    "en",
+    "ja"
+  ],
+  "capabilities": {
+    "audio_out": false,
+    "microphone": false,
+    "network": "none"
+  },
+  "payloads": {
+    "music.tal-preset@1": {
+      "description": "The cycle the learner taps, and how fast.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tal",
+        "tempo_bpm"
+      ],
+      "properties": {
+        "tal": {
+          "enum": [
+            "rupak"
+          ]
+        },
+        "tempo_bpm": {
+          "type": "integer",
+          "minimum": 40,
+          "maximum": 160
+        }
+      }
+    },
+    "music.taps@1": {
+      "description": "When the learner tapped, in ms from the start, in order. A judge compares them with the cycle the step set; the tool never does.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "taps"
+      ],
+      "properties": {
+        "taps": {
+          "type": "array",
+          "maxItems": 512,
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    }
+  }
+}

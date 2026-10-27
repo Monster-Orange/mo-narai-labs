@@ -63,6 +63,12 @@ importers:
         specifier: git+https://github.com/Monster-Orange/mo-narai-sdk.git#d7a46345a878b2857de4f25c878b19ae545c16b9
         version: https://codeload.github.com/Monster-Orange/mo-narai-sdk/tar.gz/d7a46345a878b2857de4f25c878b19ae545c16b9
 
+  labs/rhythm:
+    dependencies:
+      '@michinarai/sdk':
+        specifier: git+https://github.com/Monster-Orange/mo-narai-sdk.git#d7a46345a878b2857de4f25c878b19ae545c16b9
+        version: https://codeload.github.com/Monster-Orange/mo-narai-sdk/tar.gz/d7a46345a878b2857de4f25c878b19ae545c16b9
+
 packages:
 
   '@esbuild/aix-ppc64@0.28.2':
