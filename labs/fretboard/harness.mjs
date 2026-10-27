@@ -7,12 +7,14 @@ import { readFileSync } from "node:fs";
 import { defineTool } from "@michinarai/sdk";
 import { startHarness } from "@michinarai/sdk/harness";
 
+// #region shows
 export const SHOWS = {
   interval: { show: { kind: "interval", root: "A3", interval: "M3" }, task: { id: "itm_maj3_A3", kind: "play_target", assist: "none", prompt: "Play the note a major third above A3." } },
   note: { show: { kind: "note", note: "C" }, task: { id: "itm_every_C", kind: "play_target", assist: "none", prompt: "Play every C you can find below the 12th fret." } },
   scale: { show: { kind: "scale", key: "A", scale: "minor-pentatonic" }, task: { id: "itm_am_pent", kind: "play_target", assist: "none", prompt: "Play A minor pentatonic in the fifth position." } },
   practice: { show: { kind: "scale", key: "A", scale: "minor-pentatonic" }, task: undefined },
 };
+// #endregion shows
 
 export async function harness(name = "interval", ports = {}) {
   const manifest = defineTool(JSON.parse(readFileSync(new URL("./narai-tool.json", import.meta.url), "utf8")));

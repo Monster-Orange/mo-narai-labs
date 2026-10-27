@@ -22,6 +22,7 @@ export type Answer = { schema: "music.played@2"; notes: Played[] };
 
 export const DEFAULT_FRETS = 12;
 
+// #region shown
 /** The marks a preset shows. With the tool's checks hidden (a judged task, assist: none), only an interval's root stays:
  *  the rest would be the answer. */
 export function shown(preset: Preset, hidden: boolean): Mark[] {
@@ -44,6 +45,7 @@ export function shown(preset: Preset, hidden: boolean): Mark[] {
     }
   }
 }
+// #endregion shown
 
 /** music.notes@1, `highlight`'s payload: notes with an octave mark that pitch, without one every position of it. */
 export function highlighted(notes: readonly string[], frets: number): Mark[] {

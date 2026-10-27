@@ -19,6 +19,7 @@ const WORDS: Record<Locale, Words> = {
   },
 };
 
+// #region locale
 /** The first of a fallback chain the tool has ("ja-JP", "ja", "en" → ja); English when none. */
 export function pickLocale(chain: readonly string[]): Locale {
   for (const l of chain) {
@@ -27,5 +28,6 @@ export function pickLocale(chain: readonly string[]): Locale {
   }
   return "en";
 }
+// #endregion locale
 
 export const words = (l: Locale): Words => WORDS[l];
