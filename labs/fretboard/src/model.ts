@@ -25,7 +25,7 @@ export type State = Wire<MusicNeckState, "music.neck-state@1">;
 export const neckOf = (p: Preset): Neck => ({ tuning: p.tuning, frets: p.frets, capo: p.capo ?? null });
 
 // #region shown
-/** The marks for notes to show: every position of each note (a pitch class anywhere, a pitch where it sounds), labelled
+/** The marks for notes to show: every position of each note (a pitch class anywhere, a pitch where it sounds), labeled
  *  from the first note (the root). Null when one isn't a note or isn't on this neck (C8 on a guitar), so a command can
  *  refuse it. */
 export function highlighted(preset: Preset, notes: readonly string[]): Mark[] | null {
