@@ -2,7 +2,7 @@
 // interval's name, its names. It plays the preset's notes; on a task Narai judges it shows Narai's prompt (already in
 // the learner's language), and Send hands what the learner did to `onAnswer`. It never says whether it was right, and
 // never shows the interval it plays: with two notes, naming it is the task. What it plays, and whether it is sounding,
-// goes to `onState` (music.interval-state@1) as it changes; the answer begun goes to `onKept`, and `restore` brings it
+// goes to `onState` (intervals.state@1) as it changes; the answer begun goes to `onKept`, and `restore` brings it
 // back after a reload.
 import type { Player } from "./audio.ts";
 import { black, midi, pitchName, type Interval } from "./theory.ts";
@@ -19,7 +19,7 @@ export interface Tool {
   /** The Tutor's `replay`: the preset's notes again. */
   replay(): void;
   onAnswer(send: (a: Answer) => void): void;
-  /** What it plays now, and whether it is sounding (music.interval-state@1), once started. */
+  /** What it plays now, and whether it is sounding (intervals.state@1), once started. */
   current(): State | null;
   /** Each change to that, from here on. */
   onState(send: (s: State) => void): void;

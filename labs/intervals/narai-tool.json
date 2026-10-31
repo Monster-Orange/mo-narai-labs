@@ -20,7 +20,7 @@
   "commands": {
     "replay": "music.none@1"
   },
-  "state": "music.interval-state@1",
+  "state": "intervals.state@1",
   "assist": "honors",
   "locales": [
     "en",
@@ -78,7 +78,7 @@
         }
       }
     },
-    "music.interval-state@1": {
+    "intervals.state@1": {
       "description": "What the trainer plays (its preset's notes) and whether they are sounding now. Never what the learner did, and never the interval.",
       "type": "object",
       "additionalProperties": false,

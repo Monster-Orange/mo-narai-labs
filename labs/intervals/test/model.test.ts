@@ -54,7 +54,7 @@ describe("what the trainer plays, and what it keeps", () => {
   const PRESET = { schema: "music.interval-preset@1" as const, notes: ["A3", "C#4"] };
 
   it("its state is the preset's notes and whether they sound: never the learner, never the interval", () => {
-    expect(state(PRESET, true)).toEqual({ schema: "music.interval-state@1", notes: ["A3", "C#4"], playing: true });
+    expect(state(PRESET, true)).toEqual({ schema: "intervals.state@1", notes: ["A3", "C#4"], playing: true });
     expect(Object.keys(state(PRESET, false)).sort()).toEqual(["notes", "playing", "schema"]);
   });
 

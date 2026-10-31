@@ -20,12 +20,12 @@ export interface Played { pitch: number; at_ms: number }
 export type PlayedAnswer = { schema: "music.played@1"; notes: Played[] };
 export type Answer = Named | PlayedAnswer;
 
-// #region mode
-/** music.interval-state@1: what the trainer plays (the preset's notes) and whether it is sounding now. Never what the
- *  learner did, and never the interval: with two notes, naming it is the task. */
-export type State = { schema: "music.interval-state@1"; notes: string[]; playing: boolean };
+/** intervals.state@1, the trainer's own (display state that no judge reads, so not a music.* name: those are
+ *  Narai's): what the trainer plays (the preset's notes) and whether it is sounding now. Never what the learner did,
+ *  and never the interval: with two notes, naming it is the task. */
+export type State = { schema: "intervals.state@1"; notes: string[]; playing: boolean };
 
-export const state = (preset: Preset, playing: boolean): State => ({ schema: "music.interval-state@1", notes: [...preset.notes], playing });
+export const state = (preset: Preset, playing: boolean): State => ({ schema: "intervals.state@1", notes: [...preset.notes], playing });
 
 /** An answer begun and not sent, as this launch's storage keeps it: the interval chosen, or the keys played so far. */
 export interface Kept { choice: Interval | null; picks: Played[] }
@@ -43,6 +43,7 @@ export function readKept(value: unknown): Kept {
   return { choice, picks };
 }
 
+// #region mode
 /** The task's item kind as this trainer's mode (the manifest's `answers`); free play without a task. */
 export function modeOf(kind: string | null): Mode | null {
   if (kind === null) return "free";

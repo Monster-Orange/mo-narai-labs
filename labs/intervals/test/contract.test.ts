@@ -24,6 +24,10 @@ describe("narai-labs/intervals' manifest", () => {
     expect(manifest.capabilities).toEqual({ audio_out: true, microphone: false, network: "none" });
   });
 
+  it("names its state in its own namespace: music.* is Narai's", () => {
+    expect(manifest.state).toBe("intervals.state@1");
+  });
+
   it("answers a played interval in Narai's music.played@1, declared unchanged, as the fretboard does: one judge, two tools", () => {
     expect(manifest.answers?.play_interval).toBe("music.played@1");
     expect(manifest.payloads?.["music.played@1"]).toEqual(musicPayloads("music.played@1")["music.played@1"]);
@@ -70,7 +74,7 @@ describe("a launch", () => {
     run.tool.state({ ...state(PRESET, false), picks: [61] });
     await run.settle();
     expect(run.received.states).toHaveLength(before); // refused at the host: the schema has no room for them
-    expect(run.received.refused.map((r) => r.reason)).toEqual(["music.interval-state@1: (root) must NOT have additional properties (picks)"]);
+    expect(run.received.refused.map((r) => r.reason)).toEqual(["intervals.state@1: (root) must NOT have additional properties (picks)"]);
   });
 
   it("an answer begun is this launch's own: kept in its storage, and still there when the reloaded tool reconnects", async () => {
