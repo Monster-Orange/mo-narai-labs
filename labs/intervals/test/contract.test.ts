@@ -5,10 +5,10 @@ import { manifestProblems, musicPayloads } from "@michinarai/sdk";
 import { launch } from "@michinarai/sdk/testing";
 import { manifest } from "../src/manifest.ts";
 import { LOCALES } from "../src/words.ts";
-import { named, played, toggle } from "../src/model.ts";
+import { named, played, state, toggle } from "../src/model.ts";
 import fretboard from "../../fretboard/narai-tool.json";
 
-const PRESET = { schema: "music.interval-preset@1", notes: ["A3", "C#4"] };
+const PRESET = { schema: "music.interval-preset@1" as const, notes: ["A3", "C#4"] };
 const NAME = { id: "itm_name_M3", kind: "name_interval", assist: "none" as const, prompt: "Listen, then name the interval." };
 const PLAY = { id: "itm_play_M3", kind: "play_interval", assist: "none" as const, prompt: "Play the note a major third above A3." };
 let close = () => {};
@@ -22,6 +22,10 @@ describe("narai-labs/intervals' manifest", () => {
   it("is one the SDK takes, with no problems, and asks to play sound and nothing else", () => {
     expect(manifestProblems(manifest)).toEqual([]);
     expect(manifest.capabilities).toEqual({ audio_out: true, microphone: false, network: "none" });
+  });
+
+  it("names its state in its own namespace: music.* is Narai's", () => {
+    expect(manifest.state).toBe("intervals.state@1");
   });
 
   it("answers a played interval in Narai's music.played@1, declared unchanged, as the fretboard does: one judge, two tools", () => {
@@ -55,5 +59,32 @@ describe("a launch", () => {
     expect(() => run.host.command("highlight", { schema: "music.notes@1", notes: ["A3"] })).toThrow();
     await run.settle();
     expect(got).toEqual(["replay"]);
+  });
+
+  it("its state goes to Narai as it starts and stops sounding, and Narai can ask for it; the learner's keys are no state", async () => {
+    const run = await launch(manifest, { launch: "lch_intervals03", locale: "en", preset: PRESET });
+    close = run.close;
+    run.tool.ready("en");
+    run.tool.state(state(PRESET, true));
+    run.tool.state(state(PRESET, false));
+    await run.settle();
+    expect(run.received.states.map((s) => s.payload)).toEqual([state(PRESET, true), state(PRESET, false)]);
+    expect(await run.host.requestState()).toEqual(state(PRESET, false));
+    const before = run.received.states.length;
+    run.tool.state({ ...state(PRESET, false), picks: [61] });
+    await run.settle();
+    expect(run.received.states).toHaveLength(before); // refused at the host: the schema has no room for them
+    expect(run.received.refused.map((r) => r.reason)).toEqual(["intervals.state@1: (root) must NOT have additional properties (picks)"]);
+  });
+
+  it("an answer begun is this launch's own: kept in its storage, and still there when the reloaded tool reconnects", async () => {
+    const run = await launch(manifest, { launch: "lch_intervals04", locale: "en", preset: PRESET, task: NAME });
+    close = run.close;
+    run.tool.ready("en");
+    const kept = { choice: "M3", picks: [] };
+    expect(await run.tool.storage.set("answer", kept)).toEqual({ ok: true });
+    const again = await run.reconnect();
+    again.ready("en");
+    expect(await again.storage.get("answer")).toEqual({ ok: true, value: kept });
   });
 });

@@ -1,6 +1,8 @@
 // What the trainer plays and what it sends, as data (no DOM). The payload families are the manifest's own
 // (narai-tool.json `payloads`): a step's preset is the sound (one note or two), never the key; an answer is the interval
-// the learner named or the notes they played, never whether it was right (Narai judges). The Tutor may `replay`.
+// the learner named or the notes they played, never whether it was right (Narai judges). The Tutor may `replay`. What
+// it plays, and whether it is sounding, goes to Narai as its state; the learner's half-entered answer stays in this
+// launch's storage, so a reload keeps it.
 import { INTERVALS, midi, type Interval } from "./theory.ts";
 
 /** music.interval-preset@1: the notes the trainer plays, low to high as the step wrote them. */
@@ -17,6 +19,29 @@ export interface Played { pitch: number; at_ms: number }
 /** music.played@1, Narai's, declared unchanged: the fretboard answers in it too (one judge, two tools). */
 export type PlayedAnswer = { schema: "music.played@1"; notes: Played[] };
 export type Answer = Named | PlayedAnswer;
+
+/** intervals.state@1, the trainer's own (display state that no judge reads, so not a music.* name: those are
+ *  Narai's): what the trainer plays (the preset's notes) and whether it is sounding now. Never what the learner did,
+ *  and never the interval: with two notes, naming it is the task. */
+export type State = { schema: "intervals.state@1"; notes: string[]; playing: boolean };
+
+export const state = (preset: Preset, playing: boolean): State => ({ schema: "intervals.state@1", notes: [...preset.notes], playing });
+
+/** An answer begun and not sent, as this launch's storage keeps it: the interval chosen, or the keys played so far. */
+export interface Kept { choice: Interval | null; picks: Played[] }
+
+/** What storage kept, or nothing begun when it isn't that (a shape from another version, say). */
+export function readKept(value: unknown): Kept {
+  const none: Kept = { choice: null, picks: [] };
+  if (!value || typeof value !== "object") return none;
+  const v = value as Record<string, unknown>;
+  const int = (x: unknown) => typeof x === "number" && Number.isInteger(x);
+  const choice = typeof v.choice === "string" && (INTERVALS as readonly string[]).includes(v.choice) ? (v.choice as Interval) : null;
+  const picks = Array.isArray(v.picks)
+    ? v.picks.filter((p): p is Played => !!p && typeof p === "object" && int((p as Played).pitch) && int((p as Played).at_ms))
+    : [];
+  return { choice, picks };
+}
 
 // #region mode
 /** The task's item kind as this trainer's mode (the manifest's `answers`); free play without a task. */

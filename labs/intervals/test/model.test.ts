@@ -1,6 +1,6 @@
 // The trainer's data: its presets, its keyboard and its answers, with no DOM.
 import { describe, expect, it } from "vitest";
-import { keys, modeOf, named, played, readPreset, toggle } from "../src/model.ts";
+import { keys, modeOf, named, played, readKept, readPreset, state, toggle } from "../src/model.ts";
 import { black, frequency, midi, pitchName } from "../src/theory.ts";
 
 describe("theory", () => {
@@ -47,5 +47,22 @@ describe("the answers", () => {
     expect(modeOf("play_interval")).toBe("play");
     expect(modeOf(null)).toBe("free");
     expect(modeOf("play_target")).toBeNull();
+  });
+});
+
+describe("what the trainer plays, and what it keeps", () => {
+  const PRESET = { schema: "music.interval-preset@1" as const, notes: ["A3", "C#4"] };
+
+  it("its state is the preset's notes and whether they sound: never the learner, never the interval", () => {
+    expect(state(PRESET, true)).toEqual({ schema: "intervals.state@1", notes: ["A3", "C#4"], playing: true });
+    expect(Object.keys(state(PRESET, false)).sort()).toEqual(["notes", "playing", "schema"]);
+  });
+
+  it("an answer begun comes back from storage whole; anything else is nothing begun", () => {
+    const kept = { choice: "M3", picks: [{ pitch: 61, at_ms: 800 }] };
+    expect(readKept(kept)).toEqual(kept);
+    expect(readKept({ choice: "M9", picks: [{ pitch: "C#4", at_ms: 0 }, null] })).toEqual({ choice: null, picks: [] });
+    expect(readKept(null)).toEqual({ choice: null, picks: [] });
+    expect(readKept([1, 2])).toEqual({ choice: null, picks: [] });
   });
 });

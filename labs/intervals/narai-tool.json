@@ -1,6 +1,6 @@
 {
   "id": "narai-labs/intervals",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "sdk": "^1",
   "publisher": {
     "name": "Narai Labs",
@@ -8,7 +8,7 @@
   },
   "surfaces": {
     "embed": {
-      "url": "https://intervals.tools.michinar.dev/0.2.0/",
+      "url": "https://intervals.tools.michinar.dev/0.3.0/",
       "sdk": "^1"
     }
   },
@@ -20,6 +20,7 @@
   "commands": {
     "replay": "music.none@1"
   },
+  "state": "intervals.state@1",
   "assist": "honors",
   "locales": [
     "en",
@@ -74,6 +75,29 @@
             "M7",
             "P8"
           ]
+        }
+      }
+    },
+    "intervals.state@1": {
+      "description": "What the trainer plays (its preset's notes) and whether they are sounding now. Never what the learner did, and never the interval.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "notes",
+        "playing"
+      ],
+      "properties": {
+        "notes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-G]#?-?\\d$"
+          }
+        },
+        "playing": {
+          "type": "boolean"
         }
       }
     },

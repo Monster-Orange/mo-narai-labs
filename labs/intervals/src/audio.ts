@@ -3,8 +3,8 @@
 import { frequency } from "./theory.ts";
 
 export interface Player {
-  /** Sound MIDI notes one after another, `gap` seconds apart. */
-  play(notes: readonly number[], gap?: number): void;
+  /** Sound MIDI notes one after another, `gap` seconds apart; how long they sound, in seconds. */
+  play(notes: readonly number[], gap?: number): number;
 }
 
 // #region play
@@ -25,6 +25,7 @@ export function webAudio(): Player {
         osc.start(at);
         osc.stop(at + gap);
       });
+      return 0.05 + notes.length * gap;
     },
   };
 }
