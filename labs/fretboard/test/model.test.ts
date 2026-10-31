@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { VERDICT_KEYS } from "@michinarai/sdk";
-import { answer, highlighted, readPicks, state, toggle, type Preset } from "../src/model.ts";
+import { answer, heard, highlighted, readPicks, state, toggle, type Preset } from "../src/model.ts";
 import { STANDARD } from "../src/theory.ts";
 
 const PRESET: Preset = { schema: "music.neck-preset@1", tuning: [...STANDARD], frets: 12, capo: null, handed: "right", labels: "notes" };
@@ -54,9 +54,22 @@ describe("the learner's answer", () => {
     expect(keys(a).filter((k) => VERDICT_KEYS.has(k))).toEqual([]);
   });
 
+  it("a note the microphone heard joins in time order, with no place; a tap never takes it back; latency rides with it", () => {
+    let picks = toggle(PRESET, [], { string: 2, fret: 2 }, 900);
+    picks = heard(picks, 57, 400);
+    picks = toggle(PRESET, picks, { string: 3, fret: 2 }, 1300); // A3 tapped: the heard A3 stays
+    expect(answer(picks, 35)).toEqual({ schema: "music.played@1", latency_ms: 35, notes: [
+      { pitch: 57, at_ms: 400 },
+      { pitch: 61, at_ms: 900, string: 2, fret: 2 },
+      { pitch: 57, at_ms: 1300, string: 3, fret: 2 },
+    ] });
+    expect(answer(toggle(PRESET, [], { string: 2, fret: 2 }, 900), 35)).not.toHaveProperty("latency_ms"); // taps alone: none
+  });
+
   it("picks back from storage: only whole ones", () => {
-    const kept = [{ pitch: 61, at_ms: 900, string: 2, fret: 2 }];
+    const kept = [{ pitch: 61, at_ms: 900, string: 2, fret: 2 }, { pitch: 57, at_ms: 1000 }];
     expect(readPicks(kept)).toEqual(kept);
+    expect(readPicks([{ pitch: 61, at_ms: 900, string: 2 }])).toEqual([]); // half a place is none
     expect(readPicks([{ pitch: "C#4", at_ms: 0, string: 2, fret: 2 }, null, 3])).toEqual([]);
     expect(readPicks({ not: "picks" })).toEqual([]);
   });

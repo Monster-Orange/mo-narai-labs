@@ -1,7 +1,11 @@
 # fretboard
 
 A guitar neck. Any number of strings, any tuning, a capo, left-handed or right. The step sets it up. The task, or the
-Tutor, says what to show. The learner plays positions and sends them.
+Tutor, says what to show. The learner plays positions and sends them. Each tap plucks its string.
+
+On a step that grants the microphone, the learner can play their own guitar instead. The tool hears each note
+(`src/pitch.ts`: its pitch, held for a few frames) and adds it to the answer: pitch and time, no string or fret,
+because a guitar plays one pitch in several places. Only notes leave the tool, never audio.
 
 It's the course's running example: *The fretboard* module reads it file by file.
 
@@ -16,6 +20,10 @@ It's the course's running example: *The fretboard* module reads it file by file.
   is refused with `CommandRefused`.
 - `session.storage`: the learner's picks, kept for this launch. Reload the frame and they come back.
 - `pickLocale` and `onLocale`: English and Japanese. Only the tool's own words change. Narai sends the prompt.
+- `capabilities`: `audio_out` for the pluck, `microphone` for Listen. Narai frames the tool with the microphone only on a
+  step that grants it, and the start says so (`granted`). No grant, no Listen button. The SDK doesn't carry
+  `granted` yet ([`FINDINGS.md`](../../FINDINGS.md) #10), so for now the button never shows.
+- `latency_ms` on `music.played@1`: how late the tool hears, sent with any answer that has heard notes.
 
 **Run it**
 

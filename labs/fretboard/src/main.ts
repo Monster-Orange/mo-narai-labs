@@ -3,11 +3,15 @@
 // payload says what to show; the learner's picks go back as the task's answer (music.played@1); what the neck shows goes
 // to Narai as its state (music.neck-state@1); the Tutor may `highlight` and `clear`, nothing else, and each is answered
 // (a highlight that names no note is refused). The picks are kept in this launch's storage, so a reload keeps them.
+// A tap plucks its string; on a step that grants the microphone (the start's `granted`), the learner may play their
+// own guitar instead, and the notes heard join the answer, never the audio.
 // The course quotes the #region blocks here (session, commands, storage), in model.ts, words.ts and harness.mjs (narai-tools, demo "The
 // fretboard"): keep each one whole and short.
 import { CommandRefused, connect, type Payload, pickLocale } from "@michinarai/sdk";
 import { manifest } from "./manifest.ts";
 import { mountFretboard } from "./fretboard.ts";
+import { micAllowed } from "./mic.ts";
+import { player } from "./sound.ts";
 import { readPicks, type Preset } from "./model.ts";
 import { LOCALES } from "./words.ts";
 import "./fretboard.css";
@@ -19,11 +23,13 @@ if (!root) throw new Error("fretboard: no #tool");
 const session = await connect(manifest, { hostOrigins: ["https://michinar.ai"] });
 const preset = session.start.preset as Preset | null; // the SDK has checked it against Narai's music.neck-preset@1
 if (!preset) session.close("error");
-const tool = mountFretboard(root);
+const tool = mountFretboard(root, undefined, player());
 const locale = pickLocale(session.start, LOCALES);
 const task = session.task;
 tool.onAnswer((a) => session.answer(a));
-if (preset) tool.start(preset, { locale, prompt: task?.prompt ?? null, show: notesOf(task?.payload) });
+// `granted` is the step's grant (FINDINGS #10: not in the SDK yet, so none until it is): no grant, no Listen
+const mic = micAllowed((session.start as { granted?: unknown }).granted);
+if (preset) tool.start(preset, { locale, prompt: task?.prompt ?? null, show: notesOf(task?.payload), mic });
 session.ready(locale);
 // what it shows, once ready, then every change
 const shown = tool.current();

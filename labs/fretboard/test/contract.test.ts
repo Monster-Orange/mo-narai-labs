@@ -26,6 +26,10 @@ describe("narai-labs/fretboard's manifest", () => {
     expect(manifest.task_payloads).toEqual({ play_target: "music.notes@1" });
   });
 
+  it("asks to play sound and to hear the microphone (Narai grants the microphone per step), and no network", () => {
+    expect(manifest.capabilities).toEqual({ audio_out: true, microphone: true, network: "none" });
+  });
+
   it("declares Narai's music payloads unchanged; a variant of one is refused", () => {
     const narai = musicPayloads("music.neck-preset@1", "music.played@1", "music.neck-state@1");
     for (const [ref, schema] of Object.entries(narai)) expect(manifest.payloads?.[ref]).toEqual(schema);
