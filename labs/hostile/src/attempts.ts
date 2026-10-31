@@ -1,7 +1,6 @@
-// What the hostile tool tries (Tool Platform study, Dogfood › The hostile tool; the Planner's slice 1). Each attempt is
-// something a tool page can actually do: call the public SDK with what its manifest doesn't allow, write to its port
-// around the SDK, post to its parent window around the port, or, as another page, post to the tool's window. Each names
-// who must stop it:
+// What the hostile tool tries. Each attempt is something a tool page can actually do: call the public SDK with what its
+// manifest doesn't allow, write to its port around the SDK, post to its parent window around the port, or, as another
+// page, post to the tool's window. Each names who must stop it:
 //   thrown   the SDK refuses it on the tool's side, before anything is sent (ToolMessageError or an Error)
 //   refused  it is sent, and Narai's host refuses it (the host's onRefused), never reaching a handler
 //   ignored  a message that doesn't come over the port, which neither side ever takes

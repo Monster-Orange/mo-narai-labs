@@ -5,7 +5,7 @@ its issue and goes when the SDK fixes it. Fixed ones say where; their workaround
 
 | # | Finding | Filed | Workaround here |
 | --- | --- | --- | --- |
-| 1 | The SDK had no runtime yet: types and a manifest check, no `connect`. | mo-narai-sdk#2 (answered by #4) | none: waited for the slice-1 runtime |
+| 1 | The SDK had no runtime yet: types and a manifest check, no `connect`. | mo-narai-sdk#2 (answered by #4) | none: waited for the first runtime |
 | 2 | No published package: the SDK installs from git, and needs a `prepare` build plus pnpm's `onlyBuiltDependencies` to get a `dist/`. | mo-narai-sdk#3, fixed by the npm publish (0.1.0) | none: every tool names `0.1.0`, and `check:imports` holds it |
 | 3 | A tool can flood the host with practice reports: 1,000 in a row all reach the handler, with no rate or count limit. | mo-narai-sdk#6, fixed in bab4816 (10 at once, then 6 a minute) | none: `labs/hostile` tests the limit |
 | 4 | A manifest's `payloads` schemas describe the body **without** its `schema` key (the SDK strips it before validating). Nothing in the README says so; a schema that requires `schema` fails every payload. | mo-narai-sdk#7, fixed in bab4816 (README, `manifestWarnings`) | none |

@@ -1,15 +1,40 @@
 # Narai Labs
 
-Tools Narai builds for its own lessons, built **only on the public `@michinarai/sdk`**, the way any publisher would build
-one. If a tool here needs something the SDK doesn't give, that is a finding (see `FINDINGS.md`), not a shortcut.
+Tools Narai builds for its own lessons. Built on the public [`@michinarai/sdk`](https://www.npmjs.com/package/@michinarai/sdk)
+and nothing else, the way anyone would build one.
+
+A tool is a small web app. Narai frames it in a lesson, sandboxed, on its own origin. It shows the learner an
+instrument and reports what the learner did. It never grades. Narai keeps the answer keys and runs every judge.
+
+If a tool here needs something the SDK doesn't give, that's a finding. It goes in [`FINDINGS.md`](FINDINGS.md) and
+upstream to the SDK. No shortcuts around it.
+
+## The tools
 
 | Tool | What it is |
 | --- | --- |
-| [`labs/hello`](labs/hello) | The smallest tool: one question, a few buttons, and the pick is the answer. The course's first sample (its `#region` blocks are quoted there, so keep them whole). |
-| [`labs/fretboard`](labs/fretboard) | A guitar neck, on Narai's own music payloads, declared unchanged (0.3.0): the step sets the neck up (`music.neck-preset@1`: tuning, frets, capo, handedness, labels), the task's payload or the Tutor's `highlight` says what it shows, and it reports that as its state (`music.neck-state@1`). The learner picks positions and sends what they played (`music.played@1`); the picks are kept in the launch's storage. Each Tutor command is answered: an ack, or a refusal for notes not on the neck. The stand-in neck a partner reviews (D11). |
-| [`labs/intervals`](labs/intervals) | An interval trainer: it plays two notes for the learner to name (`music.interval-named@1`), or one to play the interval above on a keyboard (Narai's `music.played@1`, as the fretboard: one judge, two tools). The first labs tool to ask for a capability (`audio_out`). The Tutor can `replay`. |
-| [`labs/rhythm`](labs/rhythm) | A rhythm tapper: the learner taps a cycle of rupak tāl (7 beats, 3 + 2 + 2) and sends when they tapped (`music.taps@1`). Free play goes to Narai as practice, batched once a minute under the host's limit. |
-| [`labs/hostile`](labs/hostile) | A tool that conforms on paper and then tries everything it shouldn't: verdicts, oversized and malformed payloads, undeclared activities and commands, forged messages. Its tests prove each attempt is stopped. |
+| [`labs/hello`](labs/hello) | The smallest tool. One question, a few buttons, the pick is the answer. |
+| [`labs/fretboard`](labs/fretboard) | A guitar neck. The step sets it up, the task or the Tutor says what to show, the learner plays. |
+| [`labs/intervals`](labs/intervals) | An interval trainer. It plays notes; the learner names the interval or plays the note above. |
+| [`labs/rhythm`](labs/rhythm) | A rhythm tapper. The learner taps one cycle of rupak tāl (7 beats, 3 + 2 + 2). |
+| [`labs/hostile`](labs/hostile) | A tool that tries everything it shouldn't. Its tests prove each attempt is stopped. |
+
+Each folder has its own README: what it shows, which SDK features it uses, how to run it.
+
+## The course
+
+Narai's course for tool developers, *Build a tool for Narai*, is built from this repository. Its slides quote the code
+here, at a pinned commit, by `#region` block. So the code in the course is the code that runs.
+
+| Module | Tool |
+| --- | --- |
+| Meet the SDK | `labs/hello` |
+| The fretboard | `labs/fretboard` |
+| The interval trainer | `labs/intervals` |
+| The rhythm tapper | `labs/rhythm` |
+| The sandbox | `labs/hostile` |
+
+A `#region` block is quoted whole. Keep each one short. Don't split or rename one without changing the course.
 
 ## Run it
 
@@ -18,20 +43,35 @@ corepack enable          # pnpm, at the version package.json pins
 pnpm install
 make preflight           # check-imports, lint, typecheck, tests, build
 make e2e                 # each tool, headless, through the SDK's harness
-pnpm dev                 # the fretboard in the SDK's harness, to try by hand
 ```
 
-Node 20 or later. The SDK installs from npm, at the one exact version every tool names.
+Node 20 or later. Every tool names the same exact SDK version from npm. `pnpm check:imports` fails anything else.
+
+## Try a tool by hand
+
+The SDK ships a harness: a stand-in for Narai's host. It serves the host page on `http://localhost` and the tool on
+`http://127.0.0.1`, in a sandboxed frame, so the two are different origins, as they are in Narai. It prints both
+addresses and opens nothing.
+
+```sh
+pnpm --filter @narai-labs/fretboard dev interval     # or note, scale, practice
+```
+
+Open the host's address. Every message between host and tool is checked against the tool's manifest, both ways, and
+the harness records each one. A tool's `e2e.mjs` drives the same harness headless and asserts what crossed.
 
 ## Narai's music payloads
 
-`music.played@1`, `music.neck-preset@1`, `music.neck-state@1` and `music.tab-practice@1` are Narai's: a tool declares them
-unchanged, from the SDK's `musicPayloads(...)`, and the registry refuses a variant. Other `music.*` names here are labs'
-own.
+`music.played@1`, `music.neck-preset@1`, `music.neck-state@1` and `music.tab-practice@1` are Narai's. A tool declares
+them unchanged, from the SDK's `musicPayloads(...)`. Narai's registry refuses a variant. Other `music.*` names here
+are labs' own.
 
-`music.played@1` carries a note's MIDI pitch, `at_ms`, and for a guitar its `string` and `fret`. It has no keyboard
-position, by design: a key has exactly one pitch, so the pitch is the key (key 61 is C#4). String and fret exist only
-because a guitar plays one pitch in several places. A judge reads `pitch` and `at_ms` either way. A position the pitch
-can't give would come as a new optional field in a later `music.played`, never as a tool's own variant.
+`music.played@1` carries each note's MIDI pitch and `at_ms`, and for a guitar its `string` and `fret`. No keyboard
+position, by design: a key has exactly one pitch, so the pitch is the key (key 61 is C#4). String and fret exist
+because a guitar plays one pitch in several places. A judge reads `pitch` and `at_ms` either way.
 
-Part of Monster-Orange/mo-narai#1285 (the Tool Platform). Rules for agents working here: `AGENTS.md`.
+## License
+
+Apache-2.0, as the SDK. See [`LICENSE`](LICENSE).
+
+Working here as an agent: read [`AGENTS.md`](AGENTS.md) first.

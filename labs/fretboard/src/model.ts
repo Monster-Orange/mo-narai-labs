@@ -1,7 +1,7 @@
 // What the fretboard shows and what it sends, as data (no DOM). Narai's own music payloads, declared unchanged
 // (manifest.ts, from the SDK's musicPayloads): a step's preset is the neck's setup (music.neck-preset@1), what the neck
 // shows is reported as its state (music.neck-state@1), and an answer says what the learner played (music.played@1),
-// never whether it was right (D4: Narai judges). What to show is highlighting: the task's own notes on a judged step,
+// never whether it was right (Narai judges). What to show is highlighting: the task's own notes on a judged step,
 // the Tutor's `highlight` otherwise (labs' music.notes@1), nothing else.
 import type { MusicNeckPreset, MusicNeckState, MusicPlayed } from "@michinarai/sdk";
 import { labelOf, midi, pitchClass, positionsOf, same, sounding, type Neck, type Position } from "./theory.ts";

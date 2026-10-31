@@ -1,4 +1,4 @@
-// The dogfood's one rule (Tool Platform study D11): a labs tool is built ONLY on the public @michinarai/sdk, as a third
+// The dogfood's one rule: a labs tool is built ONLY on the public @michinarai/sdk, as a third
 // party would be. Every import in a tool's src/ is its own file or @michinarai/sdk (and its subpaths); nothing reaches out of
 // the tool's folder (mo-narai, another tool); its runtime dependencies name @michinarai/sdk alone, at one exact version
 // published on npm, the same in every tool (never a git commit, a link or a range). Build tools (vite, vitest, typescript)
