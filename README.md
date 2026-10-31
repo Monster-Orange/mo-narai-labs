@@ -21,7 +21,7 @@ make e2e                 # each tool, headless, through the SDK's harness
 pnpm dev                 # the fretboard in the SDK's harness, to try by hand
 ```
 
-Node 20 or later. The SDK installs from its git repository at a pinned commit and builds itself on install.
+Node 20 or later. The SDK installs from npm, at the one exact version every tool names.
 
 ## Narai's music payloads
 

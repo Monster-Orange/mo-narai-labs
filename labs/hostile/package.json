@@ -10,6 +10,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@michinarai/sdk": "git+https://github.com/Monster-Orange/mo-narai-sdk.git#d7a46345a878b2857de4f25c878b19ae545c16b9"
+    "@michinarai/sdk": "0.2.0"
   }
 }

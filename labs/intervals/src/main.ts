@@ -3,12 +3,12 @@
 // learner names the interval or plays it, and what they did goes back as the task's answer. The Tutor may `replay`,
 // nothing else (the manifest says so, and the SDK holds both sides to it). The course quotes the #region blocks here,
 // in model.ts and in audio.ts (narai-tools, demo "The interval trainer"): keep each one whole and short.
-import { connect } from "@michinarai/sdk";
+import { connect, pickLocale } from "@michinarai/sdk";
 import { manifest } from "./manifest.ts";
 import { webAudio } from "./audio.ts";
 import { mountTrainer } from "./trainer.ts";
 import { modeOf, readPreset } from "./model.ts";
-import { pickLocale } from "./words.ts";
+import { LOCALES } from "./words.ts";
 import "./intervals.css";
 
 const root = document.getElementById("tool");
@@ -23,10 +23,10 @@ if (!preset || mode === null) {
   session.close("error");
 } else {
   const tool = mountTrainer(root, webAudio());
-  const locale = pickLocale([session.start.locale, ...session.start.fallback]);
+  const locale = pickLocale(session.start, LOCALES);
   tool.onAnswer((a) => session.answer(a));
   session.onCommand("replay", () => tool.replay());
-  session.onLocale((m) => tool.setLocale(pickLocale([m.locale, ...m.fallback])));
+  session.onLocale((m) => tool.setLocale(pickLocale(m, LOCALES)));
   tool.start(preset, { locale, task: task && mode !== "free" ? { prompt: task.prompt, mode } : null });
   session.ready(locale);
 }

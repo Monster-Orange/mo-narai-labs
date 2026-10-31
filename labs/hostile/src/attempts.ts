@@ -5,12 +5,14 @@
 //   thrown   the SDK refuses it on the tool's side, before anything is sent (ToolMessageError or an Error)
 //   refused  it is sent, and Narai's host refuses it (the host's onRefused), never reaching a handler
 //   ignored  a message that doesn't come over the port, which neither side ever takes
+//   reconnects  a second hello is the frame reloading: the host connects again, on the same launch and only at the
+//            tool's origin, and nothing written on the old port reaches Narai
 // The tests (test/hostile.test.ts) run every attempt through the SDK's kit (@michinarai/sdk/testing); the page (main.ts)
 // runs them in the harness. The course quotes the #region blocks here and in the test (narai-tools, "The sandbox"):
 // keep each one whole and short.
 import type { Payload, ToolSession } from "@michinarai/sdk";
 
-export type Expect = "thrown" | "refused" | "ignored";
+export type Expect = "thrown" | "refused" | "ignored" | "reconnects";
 
 export interface Attempt {
   name: string;
@@ -50,7 +52,7 @@ export const ATTEMPTS: readonly Attempt[] = [
     run: ({ forge }) => forge({ type: "tool.answer", v: 1, launch: "lch_forgedforged", task: TASK, payload: pick() }) },
   { name: "an answer posted to the parent window, around the port", expect: "ignored",
     run: ({ postToHost }) => postToHost({ type: "tool.answer", v: 1, launch: LAUNCH, task: TASK, payload: pick() }) },
-  { name: "a second hello, asking the host for another port", expect: "ignored",
+  { name: "a second hello, asking the host for another port", expect: "reconnects",
     run: ({ postToHost }) => postToHost({ type: "tool.hello", v: 1 }) },
   { name: "a connect from another page, offering the tool a second port", expect: "ignored",
     run: ({ postToTool }) => postToTool({ type: "narai.tool.connect", v: 1 }, "https://elsewhere.example") },

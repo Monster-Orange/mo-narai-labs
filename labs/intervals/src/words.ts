@@ -2,7 +2,12 @@
 // these are only the tool's controls. Pitches stay in scientific notation in every language (the wire's form).
 import type { Interval } from "./theory.ts";
 
-export type Locale = "en" | "ja";
+// #region locale
+/** The languages the tool has, its default first: its manifest's `locales` (the contract test holds them equal).
+ *  Which one to show comes from the SDK: `pickLocale(session.start, LOCALES)`. */
+export const LOCALES = ["en", "ja"] as const;
+export type Locale = (typeof LOCALES)[number];
+// #endregion locale
 
 interface Words { listen: string; keyboard: string; intervals: string; send: string; clear: string; interval: Record<Interval, string> }
 
@@ -23,13 +28,5 @@ const WORDS: Record<Locale, Words> = {
   },
 };
 
-/** The first of a fallback chain the tool has ("ja-JP", "ja", "en" → ja); English when none. */
-export function pickLocale(chain: readonly string[]): Locale {
-  for (const l of chain) {
-    const base = l.toLowerCase().split("-")[0];
-    if (base === "en" || base === "ja") return base;
-  }
-  return "en";
-}
 
 export const words = (l: Locale): Words => WORDS[l];

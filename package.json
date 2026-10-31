@@ -31,7 +31,6 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "@michinarai/sdk",
       "esbuild"
     ]
   }
