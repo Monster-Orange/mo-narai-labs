@@ -3,12 +3,12 @@
 // back as its answer. Without a task the learner taps freely, and that goes to Narai as practice, batched under the
 // host's limit. The course quotes the #region blocks here, in model.ts and in harness.mjs (narai-tools, demo "The rhythm tapper"): keep
 // each one whole and short.
-import { connect } from "@michinarai/sdk";
+import { connect, pickLocale } from "@michinarai/sdk";
 import { manifest } from "./manifest.ts";
 import { mountTapper } from "./tapper.ts";
 import { practiceBatch, readPreset } from "./model.ts";
 import { TALS } from "./theory.ts";
-import { pickLocale } from "./words.ts";
+import { LOCALES } from "./words.ts";
 import "./rhythm.css";
 
 const root = document.getElementById("tool");
@@ -21,9 +21,9 @@ if (!preset || (task && task.kind !== "tap_cycle")) {
   session.close("error");
 } else {
   const tool = mountTapper(root);
-  const locale = pickLocale([session.start.locale, ...session.start.fallback]);
+  const locale = pickLocale(session.start, LOCALES);
   tool.onAnswer((a) => session.answer(a));
-  session.onLocale((m) => tool.setLocale(pickLocale([m.locale, ...m.fallback])));
+  session.onLocale((m) => tool.setLocale(pickLocale(m, LOCALES)));
   // #region practice
   if (!task) {
     const batch = practiceBatch(TALS[preset.tal].beats);

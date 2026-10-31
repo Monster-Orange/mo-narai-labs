@@ -5,11 +5,11 @@
 // (a highlight that names no note is refused). The picks are kept in this launch's storage, so a reload keeps them.
 // The course quotes the #region blocks here (session, commands, storage), in model.ts, words.ts and harness.mjs (narai-tools, demo "The
 // fretboard"): keep each one whole and short.
-import { CommandRefused, connect, type Payload } from "@michinarai/sdk";
+import { CommandRefused, connect, type Payload, pickLocale } from "@michinarai/sdk";
 import { manifest } from "./manifest.ts";
 import { mountFretboard } from "./fretboard.ts";
 import { readPicks, type Preset } from "./model.ts";
-import { pickLocale } from "./words.ts";
+import { LOCALES } from "./words.ts";
 import "./fretboard.css";
 
 const root = document.getElementById("tool");
@@ -20,7 +20,7 @@ const session = await connect(manifest, { hostOrigins: ["https://michinar.ai"] }
 const preset = session.start.preset as Preset | null; // the SDK has checked it against Narai's music.neck-preset@1
 if (!preset) session.close("error");
 const tool = mountFretboard(root);
-const locale = pickLocale([session.start.locale, ...session.start.fallback]);
+const locale = pickLocale(session.start, LOCALES);
 const task = session.task;
 tool.onAnswer((a) => session.answer(a));
 if (preset) tool.start(preset, { locale, prompt: task?.prompt ?? null, show: notesOf(task?.payload) });
@@ -37,7 +37,7 @@ session.onCommand("highlight", (p: Payload) => {
   if (!tool.highlight(notesOf(p))) throw new CommandRefused("invalid_payload", "a highlight names notes on this neck");
 });
 session.onCommand("clear", () => void tool.highlight([]));
-session.onLocale((m) => tool.setLocale(pickLocale([m.locale, ...m.fallback])));
+session.onLocale((m) => tool.setLocale(pickLocale(m, LOCALES)));
 // #endregion commands
 
 // #region storage

@@ -1,6 +1,11 @@
 // The fretboard's own words, in the locales its manifest declares. Narai sends the task's prompt already localized;
 // these are only the tool's controls. Pitches stay in scientific notation in every language (the wire's form).
-export type Locale = "en" | "ja";
+// #region locale
+/** The languages the tool has, its default first: its manifest's `locales` (the contract test holds them equal).
+ *  Which one to show comes from the SDK: `pickLocale(session.start, LOCALES)`. */
+export const LOCALES = ["en", "ja"] as const;
+export type Locale = (typeof LOCALES)[number];
+// #endregion locale
 
 interface Words { neck: string; send: string; clear: string; spot: (string: number, fret: number, pitch: string) => string }
 
@@ -19,15 +24,5 @@ const WORDS: Record<Locale, Words> = {
   },
 };
 
-// #region locale
-/** The first of a fallback chain the tool has ("ja-JP", "ja", "en" → ja); English when none. A copy in each tool until the SDK has a picker (mo-narai-sdk#25). */
-export function pickLocale(chain: readonly string[]): Locale {
-  for (const l of chain) {
-    const base = l.toLowerCase().split("-")[0];
-    if (base === "en" || base === "ja") return base;
-  }
-  return "en";
-}
-// #endregion locale
 
 export const words = (l: Locale): Words => WORDS[l];

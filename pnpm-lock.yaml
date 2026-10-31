@@ -42,32 +42,32 @@ importers:
   labs/fretboard:
     dependencies:
       '@michinarai/sdk':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.2.0
+        version: 0.2.0
 
   labs/hello:
     dependencies:
       '@michinarai/sdk':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.2.0
+        version: 0.2.0
 
   labs/hostile:
     dependencies:
       '@michinarai/sdk':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.2.0
+        version: 0.2.0
 
   labs/intervals:
     dependencies:
       '@michinarai/sdk':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.2.0
+        version: 0.2.0
 
   labs/rhythm:
     dependencies:
       '@michinarai/sdk':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.2.0
+        version: 0.2.0
 
 packages:
 
@@ -288,8 +288,8 @@ packages:
   '@jridgewell/sourcemap-codec@1.6.0':
     resolution: {integrity: sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw==}
 
-  '@michinarai/sdk@0.1.0':
-    resolution: {integrity: sha512-vgSbvf4yL0hzqkWZF3iSfmcMwSF6fGILQVG45UcBNulLMB6zNFzKCm9y7Ie9VazyRi6GKKzh2yeW0e+YEMShOA==}
+  '@michinarai/sdk@0.2.0':
+    resolution: {integrity: sha512-KCzAxKnjb52r9hhxtYfS6eA2FEx5LFggvLbVPIvYG5Rl6gA9edqQ9HD77UlsDzSrdDXtYkQMZ5Wp6qTurkBVog==}
     engines: {node: '>=20'}
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
@@ -1465,7 +1465,7 @@ snapshots:
 
   '@jridgewell/sourcemap-codec@1.6.0': {}
 
-  '@michinarai/sdk@0.1.0':
+  '@michinarai/sdk@0.2.0':
     dependencies:
       ajv: 8.20.0
 

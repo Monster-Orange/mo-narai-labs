@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { manifestProblems, musicPayloads } from "@michinarai/sdk";
 import { launch } from "@michinarai/sdk/testing";
 import { manifest } from "../src/manifest.ts";
+import { LOCALES } from "../src/words.ts";
 import { named, played, toggle } from "../src/model.ts";
 import fretboard from "../../fretboard/narai-tool.json";
 
@@ -14,6 +15,10 @@ let close = () => {};
 afterEach(() => close());
 
 describe("narai-labs/intervals' manifest", () => {
+  it("names the languages the tool has, its default first, as its words do (the SDK picks among them)", () => {
+    expect(manifest.locales).toEqual([...LOCALES]);
+  });
+
   it("is one the SDK takes, with no problems, and asks to play sound and nothing else", () => {
     expect(manifestProblems(manifest)).toEqual([]);
     expect(manifest.capabilities).toEqual({ audio_out: true, microphone: false, network: "none" });

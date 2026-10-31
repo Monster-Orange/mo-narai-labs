@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { manifestProblems } from "@michinarai/sdk";
 import { launch } from "@michinarai/sdk/testing";
 import { manifest } from "../src/manifest.ts";
+import { LOCALES } from "../src/words.ts";
 import { practiceBatch, taps } from "../src/model.ts";
 
 const PRESET = { schema: "music.tal-preset@1", tal: "rupak", tempo_bpm: 80 };
@@ -13,6 +14,10 @@ let close = () => {};
 afterEach(() => close());
 
 describe("narai-labs/rhythm's manifest", () => {
+  it("names the languages the tool has, its default first, as its words do (the SDK picks among them)", () => {
+    expect(manifest.locales).toEqual([...LOCALES]);
+  });
+
   it("is one the SDK takes, with no problems, and asks for no capability", () => {
     expect(manifestProblems(manifest)).toEqual([]);
     expect(manifest.capabilities).toEqual({ audio_out: false, microphone: false, network: "none" });
