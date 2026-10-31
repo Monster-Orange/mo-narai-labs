@@ -1,6 +1,6 @@
 // What the trainer plays and what it sends, as data (no DOM). The payload families are the manifest's own
 // (narai-tool.json `payloads`): a step's preset is the sound (one note or two), never the key; an answer is the interval
-// the learner named or the notes they played, never whether it was right (D4: Narai judges). The Tutor may `replay`.
+// the learner named or the notes they played, never whether it was right (Narai judges). The Tutor may `replay`.
 import { INTERVALS, midi, type Interval } from "./theory.ts";
 
 /** music.interval-preset@1: the notes the trainer plays, low to high as the step wrote them. */

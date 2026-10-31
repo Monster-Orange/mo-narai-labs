@@ -1,6 +1,7 @@
 {
   "name": "@narai-labs/hostile",
   "version": "0.1.0",
+  "license": "Apache-2.0",
   "private": true,
   "description": "narai-labs/hostile: a tool that conforms on paper and tries everything it shouldn't. Every attempt must be stopped by the SDK or Narai's host.",
   "type": "module",
@@ -10,6 +11,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@michinarai/sdk": "0.2.0"
+    "@michinarai/sdk": "0.2.1"
   }
 }

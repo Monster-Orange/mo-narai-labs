@@ -1,6 +1,6 @@
 // What the tapper sets up and what it sends, as data (no DOM). The payload families are the manifest's own
 // (narai-tool.json `payloads`): a step's preset is the cycle and its tempo; an answer is when the learner tapped, never
-// whether they were on the beat (D4: Narai judges); free play goes to Narai as practice, in batches the host takes.
+// whether they were on the beat (Narai judges); free play goes to Narai as practice, in batches the host takes.
 import { TALS, type TalName } from "./theory.ts";
 
 /** music.tal-preset@1: the cycle and how fast. */

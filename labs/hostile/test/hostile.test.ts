@@ -1,6 +1,5 @@
-// The hostile tool in CI (the Planner's slice 1; the study's Dogfood › The hostile tool): every attempt it makes is
-// stopped, by the SDK before sending or by Narai's host after, and none reaches a handler. A new attempt in
-// src/attempts.ts is tested here with nothing else to write.
+// The hostile tool in CI: every attempt it makes is stopped, by the SDK before sending or by Narai's host after, and
+// none reaches a handler. A new attempt in src/attempts.ts is tested here with nothing else to write.
 import { afterEach, describe, expect, it } from "vitest";
 import { launch } from "@michinarai/sdk/testing";
 import { manifest } from "../src/manifest.ts";

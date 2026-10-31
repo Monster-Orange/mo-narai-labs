@@ -1,6 +1,7 @@
 {
   "name": "@narai-labs/fretboard",
   "version": "0.3.0",
+  "license": "Apache-2.0",
   "private": true,
   "description": "narai-labs/fretboard: a guitar neck that shows a note, a scale or an interval and reports what the learner played.",
   "type": "module",
@@ -12,6 +13,6 @@
     "e2e": "vite build && node e2e.mjs"
   },
   "dependencies": {
-    "@michinarai/sdk": "0.2.0"
+    "@michinarai/sdk": "0.2.1"
   }
 }

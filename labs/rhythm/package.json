@@ -1,6 +1,7 @@
 {
   "name": "@narai-labs/rhythm",
   "version": "0.1.0",
+  "license": "Apache-2.0",
   "private": true,
   "description": "narai-labs/rhythm: a rhythm tapper. The learner taps a t\u0101l cycle; free play is reported as practice, in batches.",
   "type": "module",
@@ -12,6 +13,6 @@
     "e2e": "vite build && node e2e.mjs"
   },
   "dependencies": {
-    "@michinarai/sdk": "0.2.0"
+    "@michinarai/sdk": "0.2.1"
   }
 }

@@ -1,6 +1,7 @@
 {
   "name": "mo-narai-labs",
   "private": true,
+  "license": "Apache-2.0",
   "description": "Narai Labs: tools Narai builds for its own lessons, only on the public @michinarai/sdk (the Tool Platform's dogfood).",
   "type": "module",
   "packageManager": "pnpm@10.28.2",

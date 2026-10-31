@@ -1,6 +1,6 @@
 name: ci
 on:
-  workflow_dispatch: # by hand only: make preflight is the gate (the Actions cost cut)
+  workflow_dispatch: # by hand only: make preflight is the gate
 permissions:
   contents: read
 jobs:

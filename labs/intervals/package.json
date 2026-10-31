@@ -1,6 +1,7 @@
 {
   "name": "@narai-labs/intervals",
   "version": "0.2.0",
+  "license": "Apache-2.0",
   "private": true,
   "description": "narai-labs/intervals: an interval trainer. It plays two notes for the learner to name, or one to play the interval above on a keyboard.",
   "type": "module",
@@ -12,6 +13,6 @@
     "e2e": "vite build && node e2e.mjs"
   },
   "dependencies": {
-    "@michinarai/sdk": "0.2.0"
+    "@michinarai/sdk": "0.2.1"
   }
 }

@@ -18,8 +18,8 @@ what it costs a third party, so friction is the product of this repository, not 
 - **Tools never judge.** A tool reports what the learner did (`tool.answer`, `tool.practice`); Narai decides whether
   it is right. No verdicts in a payload (`correct`, `score`, `passed`, …): the SDK refuses them, and `labs/hostile`
   proves it keeps refusing.
-- **Never name the reference company or its products** anywhere in this repository: code, comments, docs, commit
-  messages, issues.
+- **Name no other company or its products** anywhere in this repository: code, comments, docs, commit messages,
+  issues.
 - **Every PR and commit names its issue**: `Part of Monster-Orange/mo-narai#1285` (or the issue it closes).
 
 ## A tool
@@ -31,5 +31,5 @@ person to try it) and `e2e.mjs` (a headless run of the harness that asserts what
 ## The gate
 
 `make preflight` (or `pnpm preflight`): check-imports, lint, typecheck, tests, build. `make e2e` drives each tool
-through the SDK's harness headless. Run both before you hand anything off: they are the gate. CI runs the same, by hand only (`workflow_dispatch`), as
-in mo-narai since the Actions cost cut.
+through the SDK's harness headless. Run both before you hand anything off: they are the gate. CI runs the same, by hand only
+(`workflow_dispatch`).
