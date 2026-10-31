@@ -16,7 +16,14 @@ test("mo-narai's code, another @narai package, a library or a node builtin is a 
     "labs/bad/src/main.ts: imports @narai/internal-host (only @michinarai/sdk)",
     "labs/bad/src/main.ts: imports node:fs (only @michinarai/sdk)",
     "labs/bad/src/main.ts: imports react (only @michinarai/sdk)",
+    "labs/later/package.json: @michinarai/sdk ^0.2.0 is not an exact published version (x.y.z from npm)",
+    "labs/pinned/package.json: @michinarai/sdk git+https://github.com/Monster-Orange/mo-narai-sdk.git#d7a46345a878b2857de4f25c878b19ae545c16b9 is not an exact published version (x.y.z from npm)",
   ]);
+});
+
+test("every tool names the same published @michinarai/sdk version", () => {
+  const two = fileURLToPath(new URL("./fixtures/versions", import.meta.url));
+  assert.deepEqual(breaches(two), ["labs/b/package.json: @michinarai/sdk 0.2.0, but labs/a/package.json has 0.1.0 (one version in every tool)"]);
 });
 
 test("specifiers: static, side-effect, dynamic and type imports; comments are not imports", () => {

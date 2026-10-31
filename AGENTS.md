@@ -9,8 +9,9 @@ what it costs a third party, so friction is the product of this repository, not 
 - **The public SDK only.** A tool's `src/` imports its own files and `@michinarai/sdk` (with its subpaths), nothing
   else; its runtime dependencies name `@michinarai/sdk` alone. No imports from mo-narai, no copied platform code, no
   private endpoints. `pnpm check:imports` fails a breach, and it runs first in `pnpm preflight`.
-- **The SDK is pinned to a commit** (`git+https://…/mo-narai-sdk.git#<sha>`), the same in every tool. Moving the pin
-  is its own commit, with every tool's tests green on the new head.
+- **The SDK is pinned to one published version** (an exact `x.y.z` from npm, never a git commit, a link or a range),
+  the same in every tool; `pnpm check:imports` fails anything else. Moving the version is its own commit, with every
+  tool's tests green on it.
 - **Friction is filed, not worked around in silence.** Anything the SDK makes hard, wrong or undocumented becomes an
   issue on Monster-Orange/mo-narai-sdk (or mo-narai-cli for the command line) and a line in `FINDINGS.md`. A local
   workaround names its issue in a comment and goes when the SDK fixes it.

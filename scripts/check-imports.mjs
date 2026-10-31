@@ -1,7 +1,8 @@
 // The dogfood's one rule (Tool Platform study D11): a labs tool is built ONLY on the public @michinarai/sdk, as a third
 // party would be. Every import in a tool's src/ is its own file or @michinarai/sdk (and its subpaths); nothing reaches out of
-// the tool's folder (mo-narai, another tool); its runtime dependencies name @michinarai/sdk alone. Build tools (vite,
-// vitest, typescript) are dev dependencies and never imported by src/.
+// the tool's folder (mo-narai, another tool); its runtime dependencies name @michinarai/sdk alone, at one exact version
+// published on npm, the same in every tool (never a git commit, a link or a range). Build tools (vite, vitest, typescript)
+// are dev dependencies and never imported by src/.
 //
 //   node scripts/check-imports.mjs [ROOT]
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
@@ -10,6 +11,7 @@ import { fileURLToPath } from "node:url";
 
 const ALLOWED = /^@michinarai\/sdk(\/.*)?$/;
 const SOURCE = /\.(ts|tsx|js|mjs)$/;
+const PUBLISHED = /^\d+\.\d+\.\d+$/;
 
 const walk = (d) => readdirSync(d).flatMap((f) => {
   const p = join(d, f);
@@ -31,13 +33,22 @@ export function breaches(root) {
   const labs = join(root, "labs");
   if (!existsSync(labs)) return [];
   const out = [];
-  for (const tool of readdirSync(labs)) {
+  let first = null;
+  for (const tool of readdirSync(labs).sort()) {
     const dir = join(labs, tool);
     if (!statSync(dir).isDirectory()) continue;
     const pkg = join(dir, "package.json");
     if (existsSync(pkg)) {
-      const deps = Object.keys(JSON.parse(readFileSync(pkg, "utf8")).dependencies ?? {});
-      for (const d of deps) if (!ALLOWED.test(d)) out.push(`${relative(root, pkg)}: runtime dependency ${d} (only @michinarai/sdk)`);
+      const deps = JSON.parse(readFileSync(pkg, "utf8")).dependencies ?? {};
+      for (const d of Object.keys(deps)) if (!ALLOWED.test(d)) out.push(`${relative(root, pkg)}: runtime dependency ${d} (only @michinarai/sdk)`);
+      const sdk = deps["@michinarai/sdk"];
+      if (sdk !== undefined && !PUBLISHED.test(sdk)) {
+        out.push(`${relative(root, pkg)}: @michinarai/sdk ${sdk} is not an exact published version (x.y.z from npm)`);
+      } else if (sdk !== undefined && first && first.version !== sdk) {
+        out.push(`${relative(root, pkg)}: @michinarai/sdk ${sdk}, but ${first.pkg} has ${first.version} (one version in every tool)`);
+      } else if (sdk !== undefined) {
+        first ??= { pkg: relative(root, pkg), version: sdk };
+      }
     }
     const src = join(dir, "src");
     if (!existsSync(src)) continue;
