@@ -14,9 +14,12 @@ export type Preset = Wire<MusicNeckPreset, "music.neck-preset@1">;
 /** A spot the neck highlights, with what it says (the preset's `labels`). */
 export interface Mark { position: Position; label: string | null }
 
-/** A played note as music.played@1 carries it: its MIDI pitch, when (ms from the start), and where on the neck (display
- *  data: a judge reads pitch and at_ms). */
-export interface Played { pitch: number; at_ms: number; string: number; fret: number }
+/** A played note as music.played@1 carries it: its MIDI pitch, when (ms from the start), and, for a tapped one, where
+ *  on the neck (display data: a judge reads pitch and at_ms). A note the microphone heard has no place: a guitar plays
+ *  one pitch in several. */
+export interface Played { pitch: number; at_ms: number; string?: number; fret?: number }
+/** A tapped note: one with its place on the neck. */
+export const placed = (p: Played): p is Played & Position => p.string !== undefined && p.fret !== undefined;
 /** music.played@1: what the learner played, in order. No verdict, at any depth. */
 export type Answer = Wire<MusicPlayed, "music.played@1">;
 /** music.neck-state@1: what the neck shows (its setup and its highlights), never what the learner did. */
@@ -43,7 +46,8 @@ export function highlighted(preset: Preset, notes: readonly string[]): Mark[] | 
 }
 // #endregion shown
 
-/** The neck's state: its setup and what it highlights. `playing` is false: it makes no sound. */
+/** The neck's state: its setup and what it highlights. `playing` is false: it plays nothing back (a tap's pluck is
+ *  the learner's own note). */
 export function state(preset: Preset, marks: readonly Mark[]): State {
   const { schema: _, ...neck } = preset;
   return { schema: "music.neck-state@1", preset: neck as MusicNeckPreset, highlighted: marks.map((m) => ({ ...m.position, label: m.label })), playing: false };
@@ -51,19 +55,27 @@ export function state(preset: Preset, marks: readonly Mark[]): State {
 
 /** The learner's picks, toggled: a second tap on a spot takes it back. */
 export function toggle(preset: Preset, picks: readonly Played[], position: Position, at_ms: number): Played[] {
-  return picks.some((p) => same(p, position))
-    ? picks.filter((p) => !same(p, position))
+  return picks.some((p) => placed(p) && same(p, position))
+    ? picks.filter((p) => !(placed(p) && same(p, position)))
     : [...picks, { pitch: sounding(neckOf(preset), position), at_ms, string: position.string, fret: position.fret }];
 }
 
-/** The answer for what was picked, in the order it was played. */
-export function answer(picks: readonly Played[]): Answer {
-  return { schema: "music.played@1", notes: [...picks].sort((a, b) => a.at_ms - b.at_ms).map((p) => ({ ...p })) };
+/** A note the microphone heard, after the picks: it has no place, so another tap never takes it back (Clear does). */
+export function heard(picks: readonly Played[], pitch: number, at_ms: number): Played[] {
+  return [...picks, { pitch, at_ms }];
+}
+
+/** The answer for what was played, in order. With notes the microphone heard, `latency_ms` says how late the tool
+ *  hears (Narai's judge allows for it). */
+export function answer(picks: readonly Played[], latency_ms: number | null = null): Answer {
+  const notes = [...picks].sort((a, b) => a.at_ms - b.at_ms).map((p) => ({ ...p }));
+  return latency_ms !== null && picks.some((p) => !placed(p)) ? { schema: "music.played@1", notes, latency_ms } : { schema: "music.played@1", notes };
 }
 
 /** Picks as this launch's storage kept them (after a reload, say), or none when they aren't picks. */
 export function readPicks(value: unknown): Played[] {
   if (!Array.isArray(value)) return [];
   const int = (v: unknown) => typeof v === "number" && Number.isInteger(v);
-  return value.filter((p): p is Played => !!p && typeof p === "object" && ["pitch", "at_ms", "string", "fret"].every((k) => int((p as Record<string, unknown>)[k])));
+  const note = (p: Record<string, unknown>) => int(p.pitch) && int(p.at_ms) && (int(p.string) && int(p.fret) || (p.string === undefined && p.fret === undefined));
+  return value.filter((p): p is Played => !!p && typeof p === "object" && note(p as Record<string, unknown>));
 }

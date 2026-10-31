@@ -7,7 +7,10 @@ export const LOCALES = ["en", "ja"] as const;
 export type Locale = (typeof LOCALES)[number];
 // #endregion locale
 
-interface Words { neck: string; send: string; clear: string; spot: (string: number, fret: number, pitch: string) => string }
+interface Words {
+  neck: string; send: string; clear: string; spot: (string: number, fret: number, pitch: string) => string;
+  listen: string; stop: string; heard: (notes: string) => string; micRefused: string;
+}
 
 const WORDS: Record<Locale, Words> = {
   en: {
@@ -15,12 +18,20 @@ const WORDS: Record<Locale, Words> = {
     send: "Send",
     clear: "Clear",
     spot: (s, f, p) => (f === 0 ? `String ${s}, open: ${p}` : `String ${s}, fret ${f}: ${p}`),
+    listen: "Play on your guitar",
+    stop: "Stop listening",
+    heard: (n) => `Heard: ${n}`,
+    micRefused: "No microphone. Tap the neck instead.",
   },
   ja: {
     neck: "ギターのネック",
     send: "送る",
     clear: "クリア",
     spot: (s, f, p) => (f === 0 ? `${s}弦 開放：${p}` : `${s}弦 ${f}フレット：${p}`),
+    listen: "ギターで弾く",
+    stop: "聞くのをやめる",
+    heard: (n) => `聞こえた音：${n}`,
+    micRefused: "マイクが使えません。ネックをタップしてください。",
   },
 };
 

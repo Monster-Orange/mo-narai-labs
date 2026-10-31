@@ -1,6 +1,6 @@
 {
   "id": "narai-labs/fretboard",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "sdk": "^1",
   "publisher": {
     "name": "Narai Labs",
@@ -8,7 +8,7 @@
   },
   "surfaces": {
     "embed": {
-      "url": "https://fretboard.tools.michinar.dev/0.3.0/",
+      "url": "https://fretboard.tools.michinar.dev/0.4.0/",
       "sdk": "^1"
     }
   },
@@ -30,8 +30,8 @@
     "ja"
   ],
   "capabilities": {
-    "audio_out": false,
-    "microphone": false,
+    "audio_out": true,
+    "microphone": true,
     "network": "none"
   },
   "payloads": {

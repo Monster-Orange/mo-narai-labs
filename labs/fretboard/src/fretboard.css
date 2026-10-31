@@ -38,3 +38,7 @@ body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.4 sy
 .answer-bar .quiet { background: transparent; color: var(--root); }
 .answer-bar button:disabled { opacity: 0.45; cursor: default; }
 .prompt { margin: 0; font-weight: 600; }
+.listen-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.listen-bar button { font: inherit; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--shown); background: transparent; color: var(--root); cursor: pointer; }
+.listen-bar button[aria-pressed="true"] { background: var(--picked); border-color: var(--picked); color: var(--on); }
+.heard { margin: 0; color: var(--muted); }

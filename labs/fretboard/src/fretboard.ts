@@ -3,8 +3,12 @@
 // mark labelled as the preset asks, and the learner's picks. On a task Narai judges it shows Narai's prompt (already in
 // the learner's language), and Send hands the picks to `onAnswer` as a music.played@1 answer. It never says whether
 // they are right. What it shows goes to `onState` (music.neck-state@1) each time it changes; the picks go to `onPicks`.
-import { lowest, pitchAt, same, type Position } from "./theory.ts";
-import { answer, highlighted, neckOf, state, toggle, type Answer, type Mark, type Played, type Preset, type State } from "./model.ts";
+// A tap plucks the string. On a step that grants the microphone, Listen hears the learner's own guitar: each note it
+// hears joins the picks (its pitch and time, no place), and only notes leave it.
+import { lowest, pitchAt, pitchName, same, sounding, type Position } from "./theory.ts";
+import { answer, heard, highlighted, neckOf, placed, state, toggle, type Answer, type Mark, type Played, type Preset, type State } from "./model.ts";
+import { listen, type Listening } from "./mic.ts";
+import type { Player } from "./sound.ts";
 import { words, type Locale } from "./words.ts";
 
 const SVG = "http://www.w3.org/2000/svg";
@@ -14,7 +18,8 @@ const FRET_W = 64, STRING_GAP = 28, PAD = 24, OPEN_W = 40;
 /** The tool, as main.ts drives it from the SDK's session: started with a step's preset (and a task, if any), sent the
  *  Tutor's commands, handing back what the learner played and what it shows. */
 export interface Tool {
-  start(preset: Preset, opts: { locale: Locale; prompt: string | null; show: readonly string[] }): void;
+  /** `mic`: the step granted the microphone and the frame allows it (mic.ts micAllowed), so Listen is offered. */
+  start(preset: Preset, opts: { locale: Locale; prompt: string | null; show: readonly string[]; mic: boolean }): void;
   /** Picks kept from before (a reload): they keep their times, and new ones follow on from the last. */
   restore(picks: readonly Played[]): void;
   setLocale(locale: Locale): void;
@@ -28,8 +33,12 @@ export interface Tool {
   onPicks(keep: (picks: readonly Played[]) => void): void;
 }
 
-export function mountFretboard(root: HTMLElement, now: () => number = () => performance.now()): Tool {
+export function mountFretboard(root: HTMLElement, now: () => number = () => performance.now(), sound: Player = { play() {} }): Tool {
   let preset: Preset | null = null;
+  let mic = false;
+  let listening: Listening | null = null;
+  let latency: number | null = null;
+  let refused = false;
   let prompt: string | null = null;
   let locale: Locale = "en";
   let marks: Mark[] = [];
@@ -81,7 +90,7 @@ export function mountFretboard(root: HTMLElement, now: () => number = () => perf
     for (let s = 1; s <= strings; s++) {
       for (let f = from; f <= frets; f++) {
         const position: Position = { string: s, fret: f };
-        const picked = picks.some((p) => same(p, position));
+        const picked = picks.some((p) => placed(p) && same(p, position));
         const mark = marks.find((m) => same(m.position, position));
         const g = el("g", {
           class: ["spot", mark ? "shown" : "", picked ? "picked" : ""].filter(Boolean).join(" "),
@@ -91,12 +100,31 @@ export function mountFretboard(root: HTMLElement, now: () => number = () => perf
         });
         el("circle", { cx: x(f), cy: y(s), r: 11 }, g);
         if (mark?.label) el("text", { x: x(f), y: y(s), class: "label", "aria-hidden": "true" }, g).textContent = mark.label;
-        const tap = () => pick(toggle(current, picks, position, Math.max(0, Math.round(now() - began))));
+        const tap = () => {
+          const next = toggle(current, picks, position, Math.max(0, Math.round(now() - began)));
+          if (next.length > picks.length) sound.play(sounding(neck, position));
+          pick(next);
+        };
         g.addEventListener("click", tap);
         g.addEventListener("keydown", (e) => { if ((e as KeyboardEvent).key === "Enter" || (e as KeyboardEvent).key === " ") { e.preventDefault(); tap(); } });
       }
     }
     root.append(svg);
+
+    if (mic) {
+      const bar = document.createElement("div");
+      bar.className = "listen-bar";
+      const button = Object.assign(document.createElement("button"), { type: "button", textContent: listening ? t.stop : t.listen, className: "quiet" });
+      button.setAttribute("aria-pressed", String(!!listening));
+      button.addEventListener("click", () => void toggleListening());
+      const said = document.createElement("p");
+      said.className = "heard";
+      said.setAttribute("aria-live", "polite");
+      const notes = picks.filter((p) => !placed(p)).map((p) => pitchName(p.pitch));
+      said.textContent = refused ? t.micRefused : notes.length ? t.heard(notes.join(" ")) : "";
+      bar.append(button, said);
+      root.append(bar);
+    }
 
     if (prompt) {
       const bar = document.createElement("div");
@@ -106,10 +134,22 @@ export function mountFretboard(root: HTMLElement, now: () => number = () => perf
       clear.addEventListener("click", () => pick([]));
       const done = Object.assign(document.createElement("button"), { type: "button", textContent: t.send, className: "primary" });
       done.disabled = picks.length === 0;
-      done.addEventListener("click", () => send(answer(picks)));
+      done.addEventListener("click", () => send(answer(picks, latency)));
       bar.append(clear, done);
       root.append(bar);
     }
+  };
+
+  const toggleListening = async () => {
+    if (listening) { listening.stop(); listening = null; draw(); return; }
+    try {
+      listening = await listen(now, (n) => pick(heard(picks, n.pitch, Math.max(0, Math.round(n.at_ms - began)))));
+      latency = listening.latency_ms;
+      refused = false;
+    } catch {
+      refused = true; // the learner said no, or there is no microphone: the neck still plays
+    }
+    draw();
   };
 
   const show = (notes: readonly string[]): boolean => {
@@ -127,6 +167,7 @@ export function mountFretboard(root: HTMLElement, now: () => number = () => perf
       preset = p;
       prompt = opts.prompt;
       locale = opts.locale;
+      mic = opts.mic;
       picks = [];
       began = now();
       marks = [];
