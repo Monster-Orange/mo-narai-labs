@@ -34,6 +34,20 @@ describe("narai-labs/hostile", () => {
       } else if (attempt.expect === "refused") {
         expect(thrown).toBeNull();
         expect(h.received.refused.length, "Narai's host refused it").toBeGreaterThan(0);
+      } else if (attempt.expect === "reconnects") {
+        // a reload, as the SDK takes one: the host connects again, at the tool's origin only, and the old page's port is dead
+        expect(thrown).toBeNull();
+        expect(h.connects, "the host connected again, at the tool's origin").toEqual([h.connects[0], h.connects[0]]);
+        h.forgeOnOldPort({ type: "tool.answer", v: 1, launch: LAUNCH, task: TASK, payload: { schema: "hostile.pick@1", choice: "B" } });
+        await h.settle();
+        expect(h.received.answers, "nothing on the old port reached Narai").toEqual([]);
+        // the launch goes on: the reloaded page connects and is answered
+        const again = await h.reconnect();
+        again.ready("en");
+        again.answer({ schema: "hostile.pick@1", choice: "B" });
+        await h.settle();
+        expect(h.received.answers).toHaveLength(1);
+        h.received.answers.length = 0;
       } else {
         expect(thrown).toBeNull();
         expect(h.received.refused).toEqual([]);
