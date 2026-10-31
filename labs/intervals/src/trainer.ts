@@ -5,7 +5,7 @@
 // goes to `onState` (intervals.state@1) as it changes; the answer begun goes to `onKept`, and `restore` brings it
 // back after a reload.
 import type { Player } from "./audio.ts";
-import { black, midi, pitchName, type Interval } from "./theory.ts";
+import { black, pitchName, type Interval } from "./theory.ts";
 import { INTERVALS, keys, named, played, state, toggle, type Answer, type Kept, type Mode, type Played, type Preset, type State } from "./model.ts";
 import { words, type Locale } from "./words.ts";
 
@@ -51,7 +51,7 @@ export function mountTrainer(root: HTMLElement, player: Player, now: () => numbe
     done = setTimeout(() => { playing = false; if (preset) report(state(preset, false)); }, seconds * 1000);
   };
 
-  const notes = () => (preset?.notes ?? []).map((n) => midi(n)).filter((n): n is number => n !== null);
+  const notes = () => preset?.notes ?? [];
   const button = (text: string, className: string, onClick: () => void) => {
     const b = Object.assign(document.createElement("button"), { type: "button", textContent: text, className });
     b.addEventListener("click", onClick);

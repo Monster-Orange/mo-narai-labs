@@ -6,11 +6,11 @@ import { CommandRefused, manifestProblems, musicPayloads, type Payload } from "@
 import { launch } from "@michinarai/sdk/testing";
 import { manifest } from "../src/manifest.ts";
 import { LOCALES } from "../src/words.ts";
-import { answer, highlighted, state, toggle, type Preset } from "../src/model.ts";
+import { answer, highlighted, readShow, state, toggle, type Preset } from "../src/model.ts";
 import { STANDARD } from "../src/theory.ts";
 
 const PRESET: Preset = { schema: "music.neck-preset@1", tuning: [...STANDARD], frets: 12, capo: null, handed: "right", labels: "notes" };
-const TASK = { id: "itm_maj3_A", kind: "play_target", assist: "none" as const, prompt: "Play the note a major third above A3.", payload: { schema: "music.notes@1", notes: ["A3"] } };
+const TASK = { id: "itm_maj3_A", kind: "play_target", assist: "none" as const, prompt: "Play the note a major third above A3.", payload: { schema: "music.notes@1", notes: [57] } };
 let close = () => {};
 afterEach(() => close());
 
@@ -69,7 +69,7 @@ describe("a launch", () => {
     const run = await launch(manifest, { launch: "lch_fretboard03", locale: "en", preset: PRESET });
     close = run.close;
     run.tool.ready("en");
-    const shown = state(PRESET, highlighted(PRESET, ["C#4"]) ?? []);
+    const shown = state(PRESET, highlighted(PRESET, { notes: [61], classes: [] }) ?? []);
     run.tool.state(shown);
     await run.settle();
     expect(run.received.states.map((s) => s.payload)).toEqual([shown]);
@@ -81,13 +81,16 @@ describe("a launch", () => {
     close = run.close;
     run.tool.ready("en");
     run.tool.onCommand("highlight", (p: Payload) => {
-      if (!highlighted(PRESET, (p.notes as string[]) ?? [])) throw new CommandRefused("invalid_payload", "a highlight names notes on this neck");
+      const show = readShow(p);
+      if (!show || !highlighted(PRESET, show)) throw new CommandRefused("invalid_payload", "a highlight names notes on this neck");
     });
     run.tool.onCommand("clear", () => {});
-    expect(await run.host.command("highlight", { schema: "music.notes@1", notes: ["A3", "C#4"] })).toEqual({ ok: true });
-    expect(await run.host.command("highlight", { schema: "music.notes@1", notes: ["C8"] })).toMatchObject({ ok: false, code: "invalid_payload" });
+    expect(await run.host.command("highlight", { schema: "music.notes@1", notes: [57, 61] })).toEqual({ ok: true });
+    expect(await run.host.command("highlight", { schema: "music.notes@1", classes: [9, 0, 4] })).toEqual({ ok: true });
+    expect(await run.host.command("highlight", { schema: "music.notes@1", notes: [108] })).toMatchObject({ ok: false, code: "invalid_payload" });
+    expect(() => run.host.command("highlight", { schema: "music.notes@1", notes: ["A3"] })).toThrow(); // spelled: not Narai's
     expect(await run.host.command("clear", { schema: "music.none@1" })).toEqual({ ok: true });
-    expect(() => run.host.command("play", { schema: "music.notes@1", notes: ["A3"] })).toThrow();
+    expect(() => run.host.command("play", { schema: "music.notes@1", notes: [57] })).toThrow();
   });
 
   it("the picks are this launch's own, kept in its storage", async () => {

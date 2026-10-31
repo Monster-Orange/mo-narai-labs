@@ -68,14 +68,12 @@ export function positions(neck: Neck): Position[] {
   return neck.tuning.flatMap((_, s) => Array.from({ length: neck.frets - from + 1 }, (_, i) => ({ string: s + 1, fret: from + i })));
 }
 
-/** Where a note lies: every position of its pitch class, or, with an octave ("A3"), of that pitch alone. */
-export function positionsOf(note: string, neck: Neck): Position[] {
-  const exact = midi(note);
-  const pc = pitchClass(note);
-  if (pc === null) return [];
+/** Where a pitch (a MIDI number) sounds on a neck, or every position of a pitch class (0 is C), as music.notes@1
+ *  names them. */
+export function positionsOf(target: { pitch: number } | { pc: number }, neck: Neck): Position[] {
   return positions(neck).filter((p) => {
     const n = sounding(neck, p);
-    return exact === null ? classOf(n) === pc : n === exact;
+    return "pitch" in target ? n === target.pitch : (n % 12) === target.pc;
   });
 }
 

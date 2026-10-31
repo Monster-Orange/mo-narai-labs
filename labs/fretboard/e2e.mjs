@@ -14,7 +14,7 @@ try {
   const tool = page.frameLocator("iframe");
   await tool.locator(".prompt").waitFor({ timeout: 15_000 });
   assert.equal(await tool.locator(".prompt").textContent(), "Play the note a major third above A3.");
-  // the task's root is shown, labelled; its target isn't
+  // the task's root is shown, labeled; its target isn't
   assert.deepEqual(await tool.locator(".spot.shown").evaluateAll((s) => s.map((g) => `${g.dataset.string}/${g.dataset.fret}`)), ["3/2", "4/7", "5/12"]);
   assert.equal(await tool.locator('.spot[data-string="3"][data-fret="2"] .label').textContent(), "A");
   await tool.locator('.spot[data-string="2"][data-fret="2"]').click();

@@ -7,12 +7,13 @@ It's the course's *The rhythm tapper* module: practice beside answers.
 
 **What it uses from the SDK**
 
-- An answer, `tap_cycle`, and a practice activity, `free_tap`, both as tap times.
+- Narai's rhythm payloads, declared exactly as Narai's schema writes them:
+  - `music.cycle-preset@1`: the step's cycle (its beats in groups, a hand per group, a bol per beat), its tempo and
+    its count-in;
+  - `music.taps@1`: each tap's time, from the first beat after the count-in, and how it was tapped (touch or key).
+- An answer, `tap_cycle`, and a practice activity, `free_tap`, both in `music.taps@1`.
 - Practice is batched once a minute, under the host's practice limit.
 - `pickLocale` and `onLocale`: English and Japanese. Bols stay in Latin spelling in both.
-
-Its payloads are labs' own for now. They move to Narai's rhythm payloads (`music.taps@1`, `music.cycle-preset@1`)
-when Narai's rhythm judge ships.
 
 **Run it**
 

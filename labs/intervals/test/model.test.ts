@@ -15,15 +15,21 @@ describe("theory", () => {
 });
 
 describe("a preset", () => {
-  it("is one note or two, each with its octave", () => {
-    expect(readPreset({ schema: "music.interval-preset@1", notes: ["A3", "C#4"] })).toEqual({ schema: "music.interval-preset@1", notes: ["A3", "C#4"] });
-    expect(readPreset({ schema: "music.interval-preset@1", notes: ["A"] })).toBeNull();
-    expect(readPreset({ schema: "music.interval-preset@1", notes: [] })).toBeNull();
-    expect(readPreset({ schema: "music.neck-preset@1", notes: ["A3"] })).toBeNull();
+  it("is one pitch, or two low then high and an octave apart at most (MIDI, as Narai sends it)", () => {
+    const p = (notes: unknown[]) => readPreset({ schema: "music.interval-preset@1", notes });
+    expect(p([57, 61])).toEqual({ schema: "music.interval-preset@1", notes: [57, 61] });
+    expect(p([57])).toEqual({ schema: "music.interval-preset@1", notes: [57] });
+    expect(p([57, 57])).not.toBeNull(); // P1
+    expect(p([57, 69])).not.toBeNull(); // P8
+    expect(p([61, 57])).toBeNull(); // high then low
+    expect(p([57, 70])).toBeNull(); // more than an octave
+    expect(p(["A3"])).toBeNull(); // spelled: not Narai's
+    expect(p([])).toBeNull();
+    expect(readPreset({ schema: "music.neck-preset@1", notes: [57] })).toBeNull();
   });
 
   it("puts two octaves of keys from the C at or below its lowest note", () => {
-    const k = keys({ schema: "music.interval-preset@1", notes: ["C#4", "A3"] });
+    const k = keys({ schema: "music.interval-preset@1", notes: [57, 61] });
     expect(k).toHaveLength(25);
     expect([k[0], k[24]].map((n) => pitchName(n ?? -1))).toEqual(["C3", "C5"]);
   });
@@ -51,10 +57,10 @@ describe("the answers", () => {
 });
 
 describe("what the trainer plays, and what it keeps", () => {
-  const PRESET = { schema: "music.interval-preset@1" as const, notes: ["A3", "C#4"] };
+  const PRESET = { schema: "music.interval-preset@1" as const, notes: [57, 61] };
 
   it("its state is the preset's notes and whether they sound: never the learner, never the interval", () => {
-    expect(state(PRESET, true)).toEqual({ schema: "intervals.state@1", notes: ["A3", "C#4"], playing: true });
+    expect(state(PRESET, true)).toEqual({ schema: "intervals.state@1", notes: [57, 61], playing: true });
     expect(Object.keys(state(PRESET, false)).sort()).toEqual(["notes", "playing", "schema"]);
   });
 

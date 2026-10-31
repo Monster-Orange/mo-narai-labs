@@ -3,12 +3,16 @@
 // batch a minute never is.
 import { afterEach, describe, expect, it } from "vitest";
 import { manifestProblems } from "@michinarai/sdk";
+import narai from "../narai-tool.json";
 import { launch } from "@michinarai/sdk/testing";
 import { manifest } from "../src/manifest.ts";
 import { LOCALES } from "../src/words.ts";
 import { practiceBatch, taps } from "../src/model.ts";
 
-const PRESET = { schema: "music.tal-preset@1", tal: "rupak", tempo_bpm: 80 };
+const PRESET = {
+  schema: "music.cycle-preset@1", system: "tala", name: "rupak", beats: 7, groups: [3, 2, 2], hands: ["wave", "clap", "clap"],
+  syllables: ["Tin", "Tin", "Na", "Dhi", "Na", "Dhi", "Na"], tempo_bpm: 80,
+};
 const TASK = { id: "itm_rupak_80", kind: "tap_cycle", assist: "none" as const, prompt: "Tap one cycle of rupak tāl at 80 beats a minute, starting on sam." };
 let close = () => {};
 afterEach(() => close());
@@ -23,6 +27,12 @@ describe("narai-labs/rhythm's manifest", () => {
     expect(manifest.capabilities).toEqual({ audio_out: false, microphone: false, network: "none" });
     expect(manifest.practice).toEqual({ free_tap: "music.taps@1" });
   });
+
+  it("is on Narai's rhythm payloads: its preset music.cycle-preset@1, its taps music.taps@1, and no other music.*", () => {
+    expect(manifest.preset_schema).toBe("music.cycle-preset@1");
+    expect(manifest.answers).toEqual({ tap_cycle: "music.taps@1" });
+    expect(Object.keys(narai.payloads).sort()).toEqual(["music.cycle-preset@1", "music.taps@1"]);
+  });
 });
 
 describe("a launch", () => {
@@ -32,9 +42,12 @@ describe("a launch", () => {
     run.tool.ready("en");
     const answer = taps([0, 750, 1500, 2250, 3000, 3750, 4500]);
     expect(() => run.tool.answer({ ...answer, on_beat: true, score: 1 })).toThrow();
+    run.tool.answer({ schema: "music.taps@1", taps: [0, 750], source: "touch" }); // bare times, the old shape: the host refuses it
+    await run.settle();
+    expect(run.received.refused).toHaveLength(1);
+    expect(run.received.answers).toEqual([]);
     run.tool.answer(answer);
     await run.settle();
-    expect(run.received.refused).toEqual([]);
     expect(run.received.answers.map((a) => a.payload)).toEqual([answer]);
   });
 

@@ -8,7 +8,7 @@ import { LOCALES } from "../src/words.ts";
 import { named, played, state, toggle } from "../src/model.ts";
 import fretboard from "../../fretboard/narai-tool.json";
 
-const PRESET = { schema: "music.interval-preset@1" as const, notes: ["A3", "C#4"] };
+const PRESET = { schema: "music.interval-preset@1" as const, notes: [57, 61] };
 const NAME = { id: "itm_name_M3", kind: "name_interval", assist: "none" as const, prompt: "Listen, then name the interval." };
 const PLAY = { id: "itm_play_M3", kind: "play_interval", assist: "none" as const, prompt: "Play the note a major third above A3." };
 let close = () => {};
@@ -32,6 +32,12 @@ describe("narai-labs/intervals' manifest", () => {
     expect(manifest.answers?.play_interval).toBe("music.played@1");
     expect(manifest.payloads?.["music.played@1"]).toEqual(musicPayloads("music.played@1")["music.played@1"]);
     expect(manifest.payloads?.["music.played@1"]).toEqual(fretboard.payloads["music.played@1"]);
+  });
+
+  it("declares each music.* it shares with the fretboard exactly as the fretboard does: one Narai schema per name", () => {
+    const shared = Object.keys(manifest.payloads ?? {}).filter((r) => r.startsWith("music.") && r in fretboard.payloads);
+    expect(shared.sort()).toEqual(["music.none@1", "music.played@1"]);
+    for (const r of shared) expect(manifest.payloads?.[r], r).toEqual(fretboard.payloads[r as keyof typeof fretboard.payloads]);
   });
 });
 

@@ -27,9 +27,9 @@ describe("pitches", () => {
 
 describe("the neck", () => {
   it("a pitch class lies on every string; a pitch with its octave only where it sounds", () => {
-    const a = positionsOf("A", STANDARD_NECK);
+    const a = positionsOf({ pc: 9 }, STANDARD_NECK);
     expect(new Set(a.map((p) => p.string)).size).toBe(6);
-    expect(positionsOf("A3", STANDARD_NECK)).toEqual([{ string: 3, fret: 2 }, { string: 4, fret: 7 }, { string: 5, fret: 12 }]);
+    expect(positionsOf({ pitch: 57 }, STANDARD_NECK)).toEqual([{ string: 3, fret: 2 }, { string: 4, fret: 7 }, { string: 5, fret: 12 }]);
   });
 
   it("scales and intervals: A minor pentatonic; a major third above A3 is C#4", () => {

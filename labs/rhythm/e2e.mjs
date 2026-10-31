@@ -1,5 +1,6 @@
-// The rhythm tapper end to end in the SDK's harness, headless. On a tap_cycle task the learner taps seven times and
-// sends: the harness took one tool.answer in music.taps@1 with seven rising times. In free play, leaving the page sends
+// The rhythm tapper end to end in the SDK's harness, headless, on Narai's rupak preset (music.cycle-preset@1). On a
+// tap_cycle task the learner taps seven times and sends: the harness took one tool.answer in music.taps@1 with seven
+// rising times, tapped by touch. In free play, leaving the page sends
 // what was tapped as one practice report. Nothing refused. Build first (`pnpm build`).
 import assert from "node:assert/strict";
 import { chromium } from "@playwright/test";
@@ -20,8 +21,9 @@ try {
     const seen = h.events.filter((e) => e.direction === "in");
     assert.deepEqual(h.events.filter((e) => !e.ok), [], "cycle: nothing refused");
     assert.deepEqual(seen.map((e) => e.type), ["tool.ready", "tool.answer"]);
-    const t = seen[1].message.payload.taps;
+    const t = seen[1].message.payload.taps.map((x) => x.at_ms);
     assert.equal(seen[1].message.payload.schema, "music.taps@1");
+    assert.equal(seen[1].message.payload.source, "touch");
     assert.equal(t.length, 7);
     assert.ok(t.every((x, i) => i === 0 || x > t[i - 1]), "taps rise");
     await page.close();

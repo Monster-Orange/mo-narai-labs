@@ -11,12 +11,13 @@ import { startHarness } from "@michinarai/sdk/harness";
 export const NECK = { schema: "music.neck-preset@1", tuning: [40, 45, 50, 55, 59, 64], frets: 12, capo: null, handed: "right", labels: "notes" };
 
 // #region shows
-/** What a step shows is its task's: the notes to highlight (an interval's root alone, so the target isn't given away). */
-const task = (id, prompt, notes) => ({ id, kind: "play_target", assist: "none", prompt, payload: { schema: "music.notes@1", notes } });
+/** What a step shows is its task's (Narai's music.notes@1): pitches where they sound, as MIDI (A3 is 57), or pitch
+ *  classes anywhere (C is 0). An interval's task shows its root alone, so the target isn't given away. */
+const task = (id, prompt, show) => ({ id, kind: "play_target", assist: "none", prompt, payload: { schema: "music.notes@1", ...show } });
 export const SHOWS = {
-  interval: task("itm_maj3_A3", "Play the note a major third above A3.", ["A3"]),
-  note: task("itm_every_C", "Play every C you can find below the 12th fret.", ["C"]),
-  scale: task("itm_am_pent", "Play A minor pentatonic in the fifth position.", ["A", "C", "D", "E", "G"]),
+  interval: task("itm_maj3_A3", "Play the note a major third above A3.", { notes: [57] }),
+  note: task("itm_every_C", "Play every C you can find below the 12th fret.", { classes: [0] }),
+  scale: task("itm_am_pent", "Play A minor pentatonic in the fifth position.", { classes: [9, 0, 2, 4, 7] }),
   practice: undefined,
 };
 // #endregion shows

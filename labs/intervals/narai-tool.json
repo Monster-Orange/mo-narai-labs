@@ -1,6 +1,6 @@
 {
   "id": "narai-labs/intervals",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "sdk": "^1",
   "publisher": {
     "name": "Narai Labs",
@@ -8,7 +8,7 @@
   },
   "surfaces": {
     "embed": {
-      "url": "https://intervals.tools.michinar.dev/0.3.0/",
+      "url": "https://intervals.tools.michinar.dev/0.4.0/",
       "sdk": "^1"
     }
   },
@@ -33,31 +33,31 @@
   },
   "payloads": {
     "music.interval-preset@1": {
-      "description": "What the trainer plays: one note (the learner plays the interval above it) or two (the learner names the interval). The notes are the sound, never the answer key: Narai holds the key and judges.",
-      "type": "object",
       "additionalProperties": false,
+      "description": "music.interval-preset@1: what an interval trainer plays, one pitch (the learner plays the interval above it) or\ntwo, low then high, an octave apart at most (the learner names it). The pitches are the sound, never the answer key:\nNarai holds the key and judges. That the two are in order and within an octave is not in this JSON Schema: Narai\nchecks it with its own model wherever a payload is checked.",
+      "properties": {
+        "notes": {
+          "items": {
+            "description": "MIDI note number (60 is middle C)",
+            "maximum": 127,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 2,
+          "minItems": 1,
+          "title": "Notes",
+          "type": "array"
+        }
+      },
       "required": [
         "notes"
       ],
-      "properties": {
-        "notes": {
-          "type": "array",
-          "minItems": 1,
-          "maxItems": 2,
-          "items": {
-            "type": "string",
-            "pattern": "^[A-G]#?-?\\d$"
-          }
-        }
-      }
+      "title": "IntervalPreset",
+      "type": "object"
     },
     "music.interval-named@1": {
-      "description": "The interval the learner named, as a short name (m3 is a minor third).",
-      "type": "object",
       "additionalProperties": false,
-      "required": [
-        "interval"
-      ],
+      "description": "music.interval-named@1: the interval the learner named, by its short name (m3 is a minor third). The semitones\nbetween the two pitches, never their direction: a descending major third is M3 too.",
       "properties": {
         "interval": {
           "enum": [
@@ -74,12 +74,19 @@
             "m7",
             "M7",
             "P8"
-          ]
+          ],
+          "title": "Interval",
+          "type": "string"
         }
-      }
+      },
+      "required": [
+        "interval"
+      ],
+      "title": "IntervalNamed",
+      "type": "object"
     },
     "intervals.state@1": {
-      "description": "What the trainer plays (its preset's notes) and whether they are sounding now. Never what the learner did, and never the interval.",
+      "description": "What the trainer plays (its preset's pitches, MIDI) and whether they are sounding now. Never what the learner did, and never the interval.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -92,8 +99,9 @@
           "minItems": 1,
           "maxItems": 2,
           "items": {
-            "type": "string",
-            "pattern": "^[A-G]#?-?\\d$"
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 127
           }
         },
         "playing": {
@@ -205,9 +213,11 @@
       "type": "object"
     },
     "music.none@1": {
-      "type": "object",
       "additionalProperties": false,
-      "properties": {}
+      "description": "music.none@1: no body",
+      "properties": {},
+      "title": "Empty",
+      "type": "object"
     }
   }
 }
