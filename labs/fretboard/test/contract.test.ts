@@ -18,6 +18,7 @@ describe("narai-labs/fretboard's manifest", () => {
     expect(manifestProblems(manifest)).toEqual([]);
     expect(manifest.id).toBe("narai-labs/fretboard");
     expect(manifest.state).toBe("music.neck-state@1");
+    expect(manifest.task_payloads).toEqual({ play_target: "music.notes@1" });
   });
 
   it("declares Narai's music payloads unchanged; a variant of one is refused", () => {
@@ -35,6 +36,11 @@ describe("a launch", () => {
     close = run.close;
     expect(run.tool.start.preset).toMatchObject(PRESET);
     expect(run.tool.task).toEqual(TASK);
+  });
+
+  it("a task's payload is the one its kind declares; another never reaches the tool", async () => {
+    const wrong = { ...TASK, payload: { schema: "music.none@1" } };
+    await expect(launch(manifest, { launch: "lch_fretboard06", locale: "en", preset: PRESET, task: wrong })).rejects.toThrow();
   });
 
   it("the learner's answer reaches Narai as music.played@1, untouched; an @2-style note is refused", async () => {
@@ -83,5 +89,17 @@ describe("a launch", () => {
     expect(await run.tool.storage.get("picks")).toMatchObject({ ok: false, error: "not_found" });
     expect(await run.tool.storage.set("picks", picks)).toEqual({ ok: true });
     expect(await run.tool.storage.get("picks")).toEqual({ ok: true, value: picks });
+  });
+
+  it("a reloaded tool reconnects to the same launch, and its picks are still in storage", async () => {
+    const run = await launch(manifest, { launch: "lch_fretboard07", locale: "en", preset: PRESET, task: TASK });
+    close = run.close;
+    run.tool.ready("en");
+    const picks = toggle(PRESET, [], { string: 2, fret: 2 }, 900);
+    expect(await run.tool.storage.set("picks", picks)).toEqual({ ok: true });
+    const again = await run.reconnect();
+    again.ready("en");
+    expect(again.launch).toBe("lch_fretboard07");
+    expect(await again.storage.get("picks")).toEqual({ ok: true, value: picks });
   });
 });

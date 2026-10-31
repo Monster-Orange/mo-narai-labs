@@ -16,6 +16,9 @@
   "answers": {
     "play_target": "music.played@1"
   },
+  "task_payloads": {
+    "play_target": "music.notes@1"
+  },
   "commands": {
     "highlight": "music.notes@1",
     "clear": "music.none@1"
