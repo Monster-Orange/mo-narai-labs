@@ -48,7 +48,7 @@ const kept = await session.storage.get("picks");
 if (kept.ok) tool.restore(readPicks(kept.value));
 // #endregion storage
 
-/** music.notes@1's notes (the SDK has checked a command's payload; a task's is read here, defensively). */
+/** music.notes@1's notes: a command's payload and a task's (its kind's, `task_payloads`), both checked by the SDK. */
 function notesOf(p: Payload | null | undefined): string[] {
   return p && Array.isArray(p.notes) ? p.notes.filter((n): n is string => typeof n === "string") : [];
 }
