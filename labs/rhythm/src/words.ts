@@ -9,7 +9,7 @@ const WORDS: Record<Locale, Words> = {
   ja: { cycle: "ルパク・タール：7拍（3 + 2 + 2）", tap: "タップ", send: "送る", clear: "クリア", hand: { clap: "手を打つ", wave: "手を振る" }, tapped: (n) => `${n}回タップ` },
 };
 
-/** The first of a fallback chain the tool has ("ja-JP", "ja", "en" → ja); English when none. */
+/** The first of a fallback chain the tool has ("ja-JP", "ja", "en" → ja); English when none. A copy in each tool until the SDK has a picker (mo-narai-sdk#25). */
 export function pickLocale(chain: readonly string[]): Locale {
   for (const l of chain) {
     const base = l.toLowerCase().split("-")[0];

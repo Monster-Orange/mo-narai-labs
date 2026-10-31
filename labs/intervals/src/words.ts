@@ -23,7 +23,7 @@ const WORDS: Record<Locale, Words> = {
   },
 };
 
-/** The first of a fallback chain the tool has ("ja-JP", "ja", "en" → ja); English when none. */
+/** The first of a fallback chain the tool has ("ja-JP", "ja", "en" → ja); English when none. A copy in each tool until the SDK has a picker (mo-narai-sdk#25). */
 export function pickLocale(chain: readonly string[]): Locale {
   for (const l of chain) {
     const base = l.toLowerCase().split("-")[0];
