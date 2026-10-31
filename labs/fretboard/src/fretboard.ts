@@ -1,12 +1,12 @@
 // The fretboard on the page: a neck drawn in SVG as Narai's preset sets it up (its strings, frets and capo, mirrored for
 // a left hand), every position a button. It shows what it is told to highlight (the task's notes, the Tutor's), each
-// mark labelled as the preset asks, and the learner's picks. On a task Narai judges it shows Narai's prompt (already in
+// mark labeled as the preset asks, and the learner's picks. On a task Narai judges it shows Narai's prompt (already in
 // the learner's language), and Send hands the picks to `onAnswer` as a music.played@1 answer. It never says whether
 // they are right. What it shows goes to `onState` (music.neck-state@1) each time it changes; the picks go to `onPicks`.
 // A tap plucks the string. On a step that grants the microphone, Listen hears the learner's own guitar: each note it
 // hears joins the picks (its pitch and time, no place), and only notes leave it.
 import { lowest, pitchAt, pitchName, same, sounding, type Position } from "./theory.ts";
-import { answer, heard, highlighted, neckOf, placed, state, toggle, type Answer, type Mark, type Played, type Preset, type State } from "./model.ts";
+import { NOTHING, answer, heard, highlighted, neckOf, placed, state, toggle, type Answer, type Mark, type Played, type Preset, type Show, type State } from "./model.ts";
 import { listen, type Listening } from "./mic.ts";
 import type { Player } from "./sound.ts";
 import { words, type Locale } from "./words.ts";
@@ -19,12 +19,12 @@ const FRET_W = 64, STRING_GAP = 28, PAD = 24, OPEN_W = 40;
  *  Tutor's commands, handing back what the learner played and what it shows. */
 export interface Tool {
   /** `mic`: the step granted the microphone and the frame allows it (mic.ts micAllowed), so Listen is offered. */
-  start(preset: Preset, opts: { locale: Locale; prompt: string | null; show: readonly string[]; mic: boolean }): void;
+  start(preset: Preset, opts: { locale: Locale; prompt: string | null; show: Show; mic: boolean }): void;
   /** Picks kept from before (a reload): they keep their times, and new ones follow on from the last. */
   restore(picks: readonly Played[]): void;
   setLocale(locale: Locale): void;
-  /** Highlight these notes (none clears); false when one isn't a note, and nothing changes. */
-  highlight(notes: readonly string[]): boolean;
+  /** Highlight these (nothing clears); false when a pitch isn't on this neck, and nothing changes. */
+  highlight(show: Show): boolean;
   onAnswer(send: (a: Answer) => void): void;
   /** What it shows now (music.neck-state@1), once started. */
   current(): State | null;
@@ -152,9 +152,9 @@ export function mountFretboard(root: HTMLElement, now: () => number = () => perf
     draw();
   };
 
-  const show = (notes: readonly string[]): boolean => {
+  const show = (what: Show): boolean => {
     if (!preset) return false;
-    const next = highlighted(preset, notes);
+    const next = highlighted(preset, what);
     if (!next) return false;
     marks = next;
     report(state(preset, marks));
@@ -171,7 +171,7 @@ export function mountFretboard(root: HTMLElement, now: () => number = () => perf
       picks = [];
       began = now();
       marks = [];
-      if (!show(opts.show)) show([]);
+      if (!show(opts.show)) show(NOTHING);
     },
     restore(kept) {
       if (!preset || kept.length === 0) return;

@@ -15,7 +15,8 @@ It's the course's running example: *The fretboard* module reads it file by file.
   - `music.neck-preset@1`: the step's neck (tuning, frets, capo, handedness, labels);
   - `music.played@1`: the answer, each note's pitch and time, plus its string and fret;
   - `music.neck-state@1`: what the neck shows, sent with `session.state` on every change.
-- `task_payloads`: a judged task carries `music.notes@1`, the notes to show before the learner plays.
+- `task_payloads`: a judged task carries Narai's `music.notes@1`, what to show before the learner plays: pitches
+  where they sound (MIDI) or pitch classes anywhere (C is 0). The Tutor's `highlight` takes the same.
 - Commands: `highlight` and `clear`, from the Tutor. Each one is answered. A highlight that names no note on the neck
   is refused with `CommandRefused`.
 - `session.storage`: the learner's picks, kept for this launch. Reload the frame and they come back.

@@ -3,10 +3,11 @@
 // the learner named or the notes they played, never whether it was right (Narai judges). The Tutor may `replay`. What
 // it plays, and whether it is sounding, goes to Narai as its state; the learner's half-entered answer stays in this
 // launch's storage, so a reload keeps it.
-import { INTERVALS, midi, type Interval } from "./theory.ts";
+import { INTERVALS, type Interval } from "./theory.ts";
 
-/** music.interval-preset@1: the notes the trainer plays, low to high as the step wrote them. */
-export interface Preset { schema: "music.interval-preset@1"; notes: string[] }
+/** music.interval-preset@1, Narai's: the pitches the trainer plays (MIDI), one, or two low then high, an octave apart
+ *  at most. */
+export interface Preset { schema: "music.interval-preset@1"; notes: number[] }
 
 /** What the learner does here: name the interval they hear, play the interval above the note, or play freely. */
 export type Mode = "name" | "play" | "free";
@@ -23,7 +24,7 @@ export type Answer = Named | PlayedAnswer;
 /** intervals.state@1, the trainer's own (display state that no judge reads, so not a music.* name: those are
  *  Narai's): what the trainer plays (the preset's notes) and whether it is sounding now. Never what the learner did,
  *  and never the interval: with two notes, naming it is the task. */
-export type State = { schema: "intervals.state@1"; notes: string[]; playing: boolean };
+export type State = { schema: "intervals.state@1"; notes: number[]; playing: boolean };
 
 export const state = (preset: Preset, playing: boolean): State => ({ schema: "intervals.state@1", notes: [...preset.notes], playing });
 
@@ -53,7 +54,7 @@ export function modeOf(kind: string | null): Mode | null {
 
 /** The keyboard's keys: two octaves from the C at or below the lowest note. */
 export function keys(preset: Preset): number[] {
-  const low = Math.min(...preset.notes.map((n) => midi(n) ?? 60));
+  const low = Math.min(...preset.notes);
   const from = low - (((low % 12) + 12) % 12);
   return Array.from({ length: 25 }, (_, i) => from + i);
 }
@@ -73,13 +74,16 @@ export function played(picks: readonly Played[]): PlayedAnswer {
 /** The answer for an interval named. */
 export const named = (interval: Interval): Named => ({ schema: "music.interval-named@1", interval });
 
-/** A preset as the step wrote it, or null when it isn't one this trainer plays. */
+/** A preset as the step wrote it, or null when it isn't one this trainer plays: one pitch, or two low then high and
+ *  an octave apart at most, as Narai's model holds them (its JSON Schema can't say the order or the span). */
 export function readPreset(value: unknown): Preset | null {
   if (!value || typeof value !== "object") return null;
   const v = value as Record<string, unknown>;
   if (v.schema !== "music.interval-preset@1" || !Array.isArray(v.notes)) return null;
-  const notes = v.notes.filter((n): n is string => typeof n === "string" && midi(n) !== null);
-  return notes.length >= 1 && notes.length <= 2 && notes.length === v.notes.length ? { schema: "music.interval-preset@1", notes } : null;
+  const notes = v.notes.filter((n): n is number => Number.isInteger(n) && n >= 0 && n <= 127);
+  if (notes.length !== v.notes.length || notes.length < 1 || notes.length > 2) return null;
+  const [low, high = low] = notes as [number, number?];
+  return high >= low && high - low <= 12 ? { schema: "music.interval-preset@1", notes } : null;
 }
 
 export { INTERVALS };

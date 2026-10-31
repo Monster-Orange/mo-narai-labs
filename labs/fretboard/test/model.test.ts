@@ -1,17 +1,22 @@
 import { describe, expect, it } from "vitest";
 import { VERDICT_KEYS } from "@michinarai/sdk";
-import { answer, heard, highlighted, readPicks, state, toggle, type Preset } from "../src/model.ts";
-import { STANDARD } from "../src/theory.ts";
+import { answer, heard, highlighted, readPicks, readShow, state, toggle, type Preset, type Show } from "../src/model.ts";
+import { PITCH_CLASSES, STANDARD, midi, pitchClass } from "../src/theory.ts";
 
 const PRESET: Preset = { schema: "music.neck-preset@1", tuning: [...STANDARD], frets: 12, capo: null, handed: "right", labels: "notes" };
 const keys = (v: unknown): string[] => (v && typeof v === "object" ? Object.entries(v).flatMap(([k, x]) => [k, ...keys(x)]) : []);
-const at = (p: Preset, notes: string[]) => (highlighted(p, notes) ?? []).map((m) => [m.position.string, m.position.fret, m.label]);
+/** Spelled notes, for reading: "A3" a pitch (MIDI), "A" a pitch class, as music.notes@1 carries them. */
+const show = (names: string[]): Show => ({
+  notes: names.map((n) => midi(n)).filter((n): n is number => n !== null),
+  classes: names.filter((n) => midi(n) === null).map((n) => PITCH_CLASSES.indexOf(pitchClass(n) ?? "C")),
+});
+const at = (p: Preset, names: string[]) => (highlighted(p, show(names)) ?? []).map((m) => [m.position.string, m.position.fret, m.label]);
 
 describe("what the neck shows: highlights", () => {
-  it("an exact pitch where it sounds, a pitch class everywhere; labelled as the preset asks", () => {
+  it("an exact pitch where it sounds, a pitch class everywhere; labeled as the preset asks", () => {
     expect(at(PRESET, ["C#4"])).toEqual([[2, 2, "C#"], [3, 6, "C#"], [4, 11, "C#"]]);
     expect(new Set(at(PRESET, ["A"]).map(([s]) => s)).size).toBe(6);
-    expect(highlighted(PRESET, [])).toEqual([]);
+    expect(highlighted(PRESET, show([]))).toEqual([]);
   });
 
   it("intervals and degrees count from the first note, the root; none says nothing", () => {
@@ -26,14 +31,17 @@ describe("what the neck shows: highlights", () => {
     expect(at(capo3, ["E"]).every(([, f]) => (f as number) >= 3)).toBe(true);
   });
 
-  it("refuses what isn't a note, or isn't on this neck, so a command can say so", () => {
-    expect(highlighted(PRESET, ["H"])).toBeNull();
-    expect(highlighted(PRESET, ["A", "C8"])).toBeNull();
-    expect(highlighted(PRESET, ["E1"])).toBeNull();
+  it("refuses a pitch that isn't on this neck, so a command can say so; reads only notes it can show", () => {
+    expect(highlighted(PRESET, show(["A", "C8"]))).toBeNull();
+    expect(highlighted(PRESET, show(["E1"]))).toBeNull();
+    expect(readShow({ notes: [57], classes: [0] })).toEqual({ notes: [57], classes: [0] });
+    expect(readShow({ classes: [0] })).toEqual({ notes: [], classes: [0] });
+    expect(readShow({ notes: ["A3"] })).toBeNull();
+    expect(readShow({ classes: [12] })).toBeNull();
   });
 
   it("the state: the neck's setup and its highlights, never the learner", () => {
-    const s = state(PRESET, highlighted(PRESET, ["C#4"]) ?? []);
+    const s = state(PRESET, highlighted(PRESET, show(["C#4"])) ?? []);
     const { schema: _, ...neck } = PRESET;
     expect(s).toEqual({ schema: "music.neck-state@1", preset: neck, playing: false,
       highlighted: [{ string: 2, fret: 2, label: "C#" }, { string: 3, fret: 6, label: "C#" }, { string: 4, fret: 11, label: "C#" }] });

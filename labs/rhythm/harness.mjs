@@ -6,6 +6,13 @@ import { readFileSync } from "node:fs";
 import { defineTool } from "@michinarai/sdk";
 import { startHarness } from "@michinarai/sdk/harness";
 
+/** Rupak tāl at 80 beats a minute, as Narai's music.cycle-preset@1 sets a cycle up: its beats in groups, a hand per
+ *  group, a bol per beat. */
+export const PRESET = {
+  schema: "music.cycle-preset@1", system: "tala", name: "rupak", beats: 7, groups: [3, 2, 2], hands: ["wave", "clap", "clap"],
+  syllables: ["Tin", "Tin", "Na", "Dhi", "Na", "Dhi", "Na"], tempo_bpm: 80,
+};
+
 // #region tasks
 export const TASKS = {
   cycle: { task: { id: "itm_rupak_80", kind: "tap_cycle", assist: "none", prompt: "Tap one cycle of rupak tāl at 80 beats a minute, starting on sam." } },
@@ -17,7 +24,7 @@ export async function harness(name = "cycle", ports = {}) {
   const manifest = defineTool(JSON.parse(readFileSync(new URL("./narai-tool.json", import.meta.url), "utf8")));
   return startHarness({
     manifest, toolDir: new URL("./dist", import.meta.url).pathname, locale: "en", fallback: ["en"], task: TASKS[name].task, ...ports,
-    preset: { schema: "music.tal-preset@1", tal: "rupak", tempo_bpm: 80 },
+    preset: PRESET,
   });
 }
 

@@ -1,6 +1,6 @@
 {
   "id": "narai-labs/fretboard",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "sdk": "^1",
   "publisher": {
     "name": "Narai Labs",
@@ -8,7 +8,7 @@
   },
   "surfaces": {
     "embed": {
-      "url": "https://fretboard.tools.michinar.dev/0.4.0/",
+      "url": "https://fretboard.tools.michinar.dev/0.5.0/",
       "sdk": "^1"
     }
   },
@@ -328,26 +328,43 @@
       "type": "object"
     },
     "music.notes@1": {
-      "type": "object",
       "additionalProperties": false,
-      "required": [
-        "notes"
-      ],
+      "description": "music.notes@1: notes to show, pitches where they sound and pitch classes anywhere; the first (of `notes`, else of\n`classes`) is the root the labels count from. One of the two at least: that is not in this JSON Schema, Narai checks\nit with its own model.",
       "properties": {
         "notes": {
-          "type": "array",
-          "maxItems": 24,
+          "default": [],
           "items": {
-            "type": "string",
-            "pattern": "^[A-G][#b]?(-?\\d)?$"
-          }
+            "description": "MIDI note number (60 is middle C)",
+            "maximum": 127,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 24,
+          "title": "Notes",
+          "type": "array"
+        },
+        "classes": {
+          "default": [],
+          "items": {
+            "description": "0 is C, 11 is B",
+            "maximum": 11,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 12,
+          "title": "Classes",
+          "type": "array"
         }
-      }
+      },
+      "title": "Notes",
+      "type": "object"
     },
     "music.none@1": {
-      "type": "object",
       "additionalProperties": false,
-      "properties": {}
+      "description": "music.none@1: no body",
+      "properties": {},
+      "title": "Empty",
+      "type": "object"
     }
   }
 }

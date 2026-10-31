@@ -12,7 +12,7 @@ import { manifest } from "./manifest.ts";
 import { mountFretboard } from "./fretboard.ts";
 import { micAllowed } from "./mic.ts";
 import { player } from "./sound.ts";
-import { readPicks, type Preset } from "./model.ts";
+import { NOTHING, readPicks, readShow, type Preset } from "./model.ts";
 import { LOCALES } from "./words.ts";
 import "./fretboard.css";
 
@@ -29,7 +29,7 @@ const task = session.task;
 tool.onAnswer((a) => session.answer(a));
 // `granted` is the step's grant (FINDINGS #10: not in the SDK yet, so none until it is): no grant, no Listen
 const mic = micAllowed((session.start as { granted?: unknown }).granted);
-if (preset) tool.start(preset, { locale, prompt: task?.prompt ?? null, show: notesOf(task?.payload), mic });
+if (preset) tool.start(preset, { locale, prompt: task?.prompt ?? null, show: readShow(task?.payload) ?? NOTHING, mic });
 session.ready(locale);
 // what it shows, once ready, then every change
 const shown = tool.current();
@@ -40,9 +40,10 @@ tool.onState((s) => session.state(s));
 // #region commands
 // a command that came before its handler waits for it (the SDK holds it); each is answered: an ack, or the refusal
 session.onCommand("highlight", (p: Payload) => {
-  if (!tool.highlight(notesOf(p))) throw new CommandRefused("invalid_payload", "a highlight names notes on this neck");
+  const show = readShow(p);
+  if (!show || !tool.highlight(show)) throw new CommandRefused("invalid_payload", "a highlight names notes on this neck");
 });
-session.onCommand("clear", () => void tool.highlight([]));
+session.onCommand("clear", () => void tool.highlight(NOTHING));
 session.onLocale((m) => tool.setLocale(pickLocale(m, LOCALES)));
 // #endregion commands
 
@@ -54,7 +55,3 @@ const kept = await session.storage.get("picks");
 if (kept.ok) tool.restore(readPicks(kept.value));
 // #endregion storage
 
-/** music.notes@1's notes: a command's payload and a task's (its kind's, `task_payloads`), both checked by the SDK. */
-function notesOf(p: Payload | null | undefined): string[] {
-  return p && Array.isArray(p.notes) ? p.notes.filter((n): n is string => typeof n === "string") : [];
-}

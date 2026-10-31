@@ -2,9 +2,10 @@
 // (manifest.ts, from the SDK's musicPayloads): a step's preset is the neck's setup (music.neck-preset@1), what the neck
 // shows is reported as its state (music.neck-state@1), and an answer says what the learner played (music.played@1),
 // never whether it was right (Narai judges). What to show is highlighting: the task's own notes on a judged step,
-// the Tutor's `highlight` otherwise (labs' music.notes@1), nothing else.
+// the Tutor's `highlight` otherwise (Narai's music.notes@1: pitches where they sound, pitch classes anywhere), nothing
+// else.
 import type { MusicNeckPreset, MusicNeckState, MusicPlayed } from "@michinarai/sdk";
-import { labelOf, midi, pitchClass, positionsOf, same, sounding, type Neck, type Position } from "./theory.ts";
+import { labelOf, positionsOf, same, sounding, type Neck, type Position } from "./theory.ts";
 
 /** A payload as it crosses: its body and the SDK's `schema` key. */
 type Wire<T, S extends string> = T & { schema: S; [key: string]: unknown };
@@ -27,18 +28,32 @@ export type State = Wire<MusicNeckState, "music.neck-state@1">;
 
 export const neckOf = (p: Preset): Neck => ({ tuning: p.tuning, frets: p.frets, capo: p.capo ?? null });
 
+/** What to show, as music.notes@1 says it: pitches where they sound (MIDI) and pitch classes anywhere (0 is C). The
+ *  first, of `notes` else of `classes`, is the root the labels count from. */
+export interface Show { notes: number[]; classes: number[] }
+export const NOTHING: Show = { notes: [], classes: [] };
+
+/** A payload's notes to show (a command's, a task's: the SDK has checked them against music.notes@1), or null when
+ *  they aren't. */
+export function readShow(p: unknown): Show | null {
+  if (!p || typeof p !== "object") return null;
+  const v = p as Record<string, unknown>;
+  const ints = (x: unknown, max: number) => (x === undefined ? [] : Array.isArray(x) && x.every((n) => Number.isInteger(n) && n >= 0 && n <= max) ? (x as number[]) : null);
+  const notes = ints(v.notes, 127), classes = ints(v.classes, 11);
+  return notes && classes ? { notes: [...notes], classes: [...classes] } : null;
+}
+
 // #region shown
-/** The marks for notes to show: every position of each note (a pitch class anywhere, a pitch where it sounds), labelled
- *  from the first note (the root). Null when one isn't a note or isn't on this neck (C8 on a guitar), so a command can
- *  refuse it. */
-export function highlighted(preset: Preset, notes: readonly string[]): Mark[] | null {
+/** The marks for what to show: every position of each pitch and each pitch class, labeled from the root. Null when a
+ *  pitch isn't on this neck (C8, MIDI 108, on a guitar), so a command can refuse it. */
+export function highlighted(preset: Preset, show: Show): Mark[] | null {
   const neck = neckOf(preset);
-  if (notes.some((n) => pitchClass(n) === null || positionsOf(n, neck).length === 0)) return null;
-  const first = notes[0];
-  const root = first === undefined ? null : (midi(first) ?? midi(`${first}4`));
+  const targets = [...show.notes.map((pitch) => ({ pitch })), ...show.classes.map((pc) => ({ pc }))];
+  if (targets.some((t) => positionsOf(t, neck).length === 0)) return null;
+  const root = show.notes[0] ?? show.classes[0] ?? null;
   const marks: Mark[] = [];
-  for (const note of notes) {
-    for (const position of positionsOf(note, neck)) {
+  for (const target of targets) {
+    for (const position of positionsOf(target, neck)) {
       if (!marks.some((m) => same(m.position, position))) marks.push({ position, label: labelOf(sounding(neck, position), root, preset.labels) });
     }
   }

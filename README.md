@@ -62,9 +62,12 @@ the harness records each one. A tool's `e2e.mjs` drives the same harness headles
 
 ## Narai's music payloads
 
-`music.played@1`, `music.neck-preset@1`, `music.neck-state@1` and `music.tab-practice@1` are Narai's. A tool declares
-them unchanged, from the SDK's `musicPayloads(...)`. Narai's registry refuses a variant. Other `music.*` names here
-are labs' own.
+Every `music.*` name is Narai's: the neck's (`music.neck-preset@1`, `music.neck-state@1`), the notes to show
+(`music.notes@1`), the interval trainer's (`music.interval-preset@1`, `music.interval-named@1`), the rhythm's
+(`music.cycle-preset@1`, `music.taps@1`), `music.played@1` and `music.none@1`. A tool declares each one exactly as
+Narai's schema writes it; Narai's registry refuses a variant. A payload only one tool reads takes that tool's own
+name (`intervals.state@1`), never `music.*`. Pitches cross as MIDI numbers (A3 is 57), pitch classes as 0 to 11
+(C is 0).
 
 `music.played@1` carries each note's MIDI pitch and `at_ms`, and for a guitar its `string` and `fret`. No keyboard
 position, by design: a key has exactly one pitch, so the pitch is the key (key 61 is C#4). String and fret exist

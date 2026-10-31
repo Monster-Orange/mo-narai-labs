@@ -8,9 +8,9 @@ import { startHarness } from "@michinarai/sdk/harness";
 
 // #region tasks
 export const TASKS = {
-  name: { notes: ["A3", "C#4"], task: { id: "itm_name_M3", kind: "name_interval", assist: "none", prompt: "Listen, then name the interval." } },
-  play: { notes: ["A3"], task: { id: "itm_play_M3", kind: "play_interval", assist: "none", prompt: "Play the note a major third above A3." } },
-  practice: { notes: ["A3", "E4"], task: undefined },
+  name: { notes: [57, 61], task: { id: "itm_name_M3", kind: "name_interval", assist: "none", prompt: "Listen, then name the interval." } },
+  play: { notes: [57], task: { id: "itm_play_M3", kind: "play_interval", assist: "none", prompt: "Play the note a major third above A3." } },
+  practice: { notes: [57, 64], task: undefined },
 };
 // #endregion tasks
 
