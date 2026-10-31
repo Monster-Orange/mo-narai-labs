@@ -18,7 +18,7 @@ export const SHOWS = {
   interval: task("itm_maj3_A3", "Play the note a major third above A3.", { notes: [57] }),
   note: task("itm_every_C", "Play every C you can find below the 12th fret.", { classes: [0] }),
   scale: task("itm_am_pent", "Play A minor pentatonic in the fifth position.", { classes: [9, 0, 2, 4, 7] }),
-  // Narai's play_passage: the notes to play, shown where they sound; judged on the notes (their order isn't, yet)
+  // Narai's play_passage: the notes to play, shown where they sound; judged on the notes in order, at any pace
   passage: { ...task("itm_am_pent_up", "Play A minor pentatonic up from A3: A3, C4, D4, E4, G4.", { notes: [57, 60, 62, 64, 67] }), kind: "play_passage" },
   practice: undefined,
 };
