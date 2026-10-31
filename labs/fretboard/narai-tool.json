@@ -1,6 +1,6 @@
 {
   "id": "narai-labs/fretboard",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "sdk": "^1",
   "publisher": {
     "name": "Narai Labs",
@@ -8,18 +8,19 @@
   },
   "surfaces": {
     "embed": {
-      "url": "https://fretboard.tools.michinar.dev/0.2.0/",
+      "url": "https://fretboard.tools.michinar.dev/0.3.0/",
       "sdk": "^1"
     }
   },
   "preset_schema": "music.neck-preset@1",
   "answers": {
-    "play_target": "music.played@2"
+    "play_target": "music.played@1"
   },
   "commands": {
     "highlight": "music.notes@1",
     "clear": "music.none@1"
   },
+  "state": "music.neck-state@1",
   "assist": "honors",
   "locales": [
     "en",
@@ -32,182 +33,296 @@
   },
   "payloads": {
     "music.neck-preset@1": {
-      "type": "object",
       "additionalProperties": false,
-      "required": [
-        "instrument",
-        "tuning",
-        "show"
-      ],
+      "description": "music.neck-preset@1: a Neck, as a step sets it up",
       "properties": {
-        "instrument": {
-          "const": "guitar"
-        },
         "tuning": {
-          "const": "standard"
+          "description": "MIDI pitch per string, lowest string first",
+          "items": {
+            "type": "integer"
+          },
+          "maxItems": 12,
+          "minItems": 4,
+          "title": "Tuning",
+          "type": "array"
         },
         "frets": {
-          "type": "integer",
-          "minimum": 5,
-          "maximum": 24,
-          "default": 12
+          "maximum": 36,
+          "minimum": 12,
+          "title": "Frets",
+          "type": "integer"
         },
-        "show": {
-          "oneOf": [
+        "capo": {
+          "anyOf": [
             {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "kind",
-                "note"
-              ],
-              "properties": {
-                "kind": {
-                  "const": "note"
-                },
-                "note": {
-                  "type": "string",
-                  "pattern": "^[A-G][#b]?$"
-                }
-              }
+              "maximum": 12,
+              "minimum": 0,
+              "type": "integer"
             },
             {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "kind",
-                "key",
-                "scale"
-              ],
-              "properties": {
-                "kind": {
-                  "const": "scale"
-                },
-                "key": {
-                  "type": "string",
-                  "pattern": "^[A-G][#b]?$"
-                },
-                "scale": {
-                  "enum": [
-                    "major",
-                    "natural-minor",
-                    "major-pentatonic",
-                    "minor-pentatonic",
-                    "blues"
-                  ]
-                }
-              }
-            },
-            {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "kind",
-                "root",
-                "interval"
-              ],
-              "properties": {
-                "kind": {
-                  "const": "interval"
-                },
-                "root": {
-                  "type": "string",
-                  "pattern": "^[A-G][#b]?-?\\d$"
-                },
-                "interval": {
-                  "enum": [
-                    "P1",
-                    "m2",
-                    "M2",
-                    "m3",
-                    "M3",
-                    "P4",
-                    "TT",
-                    "P5",
-                    "m6",
-                    "M6",
-                    "m7",
-                    "M7",
-                    "P8"
-                  ]
-                }
-              }
+              "type": "null"
             }
-          ]
+          ],
+          "default": null,
+          "title": "Capo"
+        },
+        "handed": {
+          "enum": [
+            "right",
+            "left"
+          ],
+          "title": "Handed",
+          "type": "string"
+        },
+        "labels": {
+          "enum": [
+            "none",
+            "notes",
+            "intervals",
+            "degrees"
+          ],
+          "title": "Labels",
+          "type": "string"
         }
-      }
+      },
+      "required": [
+        "tuning",
+        "frets",
+        "handed",
+        "labels"
+      ],
+      "title": "NeckPreset",
+      "type": "object"
     },
-    "music.played@2": {
-      "description": "What the learner played, in order: each note's pitch (scientific pitch notation) and when (ms from the start). A judge reads only pitch and at_ms, never position, so any instrument answers in this type. @1 required a guitar position on every note.",
-      "type": "object",
+    "music.played@1": {
+      "$defs": {
+        "Note": {
+          "additionalProperties": false,
+          "properties": {
+            "pitch": {
+              "description": "MIDI note number (60 is middle C)",
+              "maximum": 127,
+              "minimum": 0,
+              "title": "Pitch",
+              "type": "integer"
+            },
+            "at_ms": {
+              "description": "ms from the task's start, as the tool heard it",
+              "minimum": 0,
+              "title": "At Ms",
+              "type": "integer"
+            },
+            "string": {
+              "anyOf": [
+                {
+                  "maximum": 12,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "1 is the highest-pitched string",
+              "title": "String"
+            },
+            "fret": {
+              "anyOf": [
+                {
+                  "maximum": 36,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Fret"
+            },
+            "velocity": {
+              "anyOf": [
+                {
+                  "maximum": 1,
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Velocity"
+            }
+          },
+          "required": [
+            "pitch",
+            "at_ms"
+          ],
+          "title": "Note",
+          "type": "object"
+        }
+      },
       "additionalProperties": false,
+      "description": "music.played@1",
+      "properties": {
+        "notes": {
+          "items": {
+            "$ref": "#/$defs/Note"
+          },
+          "maxItems": 2000,
+          "title": "Notes",
+          "type": "array"
+        },
+        "latency_ms": {
+          "anyOf": [
+            {
+              "description": "The latency the tool measured, in ms, sent with what it reports",
+              "maximum": 1000,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Latency Ms"
+        }
+      },
       "required": [
         "notes"
       ],
-      "properties": {
-        "notes": {
-          "type": "array",
-          "maxItems": 64,
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "pitch",
-              "at_ms"
-            ],
-            "properties": {
-              "pitch": {
-                "type": "string",
-                "pattern": "^[A-G]#?-?\\d$"
+      "title": "Played",
+      "type": "object"
+    },
+    "music.neck-state@1": {
+      "$defs": {
+        "Neck": {
+          "additionalProperties": false,
+          "description": "A neck's setup: the one shape `music.neck-preset@1` is and `music.neck-state@1` holds.",
+          "properties": {
+            "tuning": {
+              "description": "MIDI pitch per string, lowest string first",
+              "items": {
+                "type": "integer"
               },
-              "at_ms": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "position": {
-                "description": "Where on the instrument it was played: display data, never judged.",
-                "oneOf": [
-                  {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "required": [
-                      "string",
-                      "fret"
-                    ],
-                    "properties": {
-                      "string": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "maximum": 6
-                      },
-                      "fret": {
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 24
-                      }
-                    }
-                  },
-                  {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "required": [
-                      "key"
-                    ],
-                    "properties": {
-                      "key": {
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 127,
-                        "description": "The key's MIDI number."
-                      }
-                    }
-                  }
-                ]
-              }
+              "maxItems": 12,
+              "minItems": 4,
+              "title": "Tuning",
+              "type": "array"
+            },
+            "frets": {
+              "maximum": 36,
+              "minimum": 12,
+              "title": "Frets",
+              "type": "integer"
+            },
+            "capo": {
+              "anyOf": [
+                {
+                  "maximum": 12,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Capo"
+            },
+            "handed": {
+              "enum": [
+                "right",
+                "left"
+              ],
+              "title": "Handed",
+              "type": "string"
+            },
+            "labels": {
+              "enum": [
+                "none",
+                "notes",
+                "intervals",
+                "degrees"
+              ],
+              "title": "Labels",
+              "type": "string"
             }
-          }
+          },
+          "required": [
+            "tuning",
+            "frets",
+            "handed",
+            "labels"
+          ],
+          "title": "Neck",
+          "type": "object"
+        },
+        "Position": {
+          "additionalProperties": false,
+          "properties": {
+            "string": {
+              "maximum": 12,
+              "minimum": 1,
+              "title": "String",
+              "type": "integer"
+            },
+            "fret": {
+              "maximum": 36,
+              "minimum": 0,
+              "title": "Fret",
+              "type": "integer"
+            },
+            "label": {
+              "anyOf": [
+                {
+                  "maxLength": 16,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Label"
+            }
+          },
+          "required": [
+            "string",
+            "fret"
+          ],
+          "title": "Position",
+          "type": "object"
         }
-      }
+      },
+      "additionalProperties": false,
+      "description": "music.neck-state@1",
+      "properties": {
+        "preset": {
+          "$ref": "#/$defs/Neck"
+        },
+        "highlighted": {
+          "items": {
+            "$ref": "#/$defs/Position"
+          },
+          "maxItems": 144,
+          "title": "Highlighted",
+          "type": "array"
+        },
+        "playing": {
+          "title": "Playing",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "preset",
+        "playing"
+      ],
+      "title": "NeckState",
+      "type": "object"
     },
     "music.notes@1": {
       "type": "object",

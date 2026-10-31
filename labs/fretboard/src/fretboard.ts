@@ -1,54 +1,65 @@
-// The fretboard on the page: a guitar neck drawn in SVG, every position a button. It shows what the preset asks (a
-// note, a scale, an interval), the Tutor's highlights, and the learner's picks. On a task Narai judges it shows Narai's
-// prompt (already in the learner's language), and Send hands the picks to `onAnswer` as a music.played@2 answer. It never
-// says whether they are right, and with the task's assist off it hides what would give the answer away.
-import { STANDARD, pitchAt, same, type Position } from "./theory.ts";
-import { answer, highlighted, shown, toggle, type Answer, type Mark, type Played, type Preset } from "./model.ts";
+// The fretboard on the page: a neck drawn in SVG as Narai's preset sets it up (its strings, frets and capo, mirrored for
+// a left hand), every position a button. It shows what it is told to highlight (the task's notes, the Tutor's), each
+// mark labelled as the preset asks, and the learner's picks. On a task Narai judges it shows Narai's prompt (already in
+// the learner's language), and Send hands the picks to `onAnswer` as a music.played@1 answer. It never says whether
+// they are right. What it shows goes to `onState` (music.neck-state@1) each time it changes; the picks go to `onPicks`.
+import { lowest, pitchAt, same, type Position } from "./theory.ts";
+import { answer, highlighted, neckOf, state, toggle, type Answer, type Mark, type Played, type Preset, type State } from "./model.ts";
 import { words, type Locale } from "./words.ts";
 
 const SVG = "http://www.w3.org/2000/svg";
-const INLAYS = [3, 5, 7, 9, 15, 17, 19, 21];
+const INLAYS = [3, 5, 7, 9, 15, 17, 19, 21, 27, 29, 31, 33];
 const FRET_W = 64, STRING_GAP = 28, PAD = 24, OPEN_W = 40;
 
-/** A task Narai judges: its prompt, and whether the tool's own marks would answer it (assist: none). */
-export interface TaskView { prompt: string; hideChecks: boolean }
-
 /** The tool, as main.ts drives it from the SDK's session: started with a step's preset (and a task, if any), sent the
- *  Tutor's commands, handing back what the learner played. */
+ *  Tutor's commands, handing back what the learner played and what it shows. */
 export interface Tool {
-  start(preset: Preset, opts: { locale: Locale; task: TaskView | null }): void;
+  start(preset: Preset, opts: { locale: Locale; prompt: string | null; show: readonly string[] }): void;
+  /** Picks kept from before (a reload): they keep their times, and new ones follow on from the last. */
+  restore(picks: readonly Played[]): void;
   setLocale(locale: Locale): void;
-  command(name: "highlight" | "clear", notes?: readonly string[]): void;
+  /** Highlight these notes (none clears); false when one isn't a note, and nothing changes. */
+  highlight(notes: readonly string[]): boolean;
   onAnswer(send: (a: Answer) => void): void;
+  /** What it shows now (music.neck-state@1), once started. */
+  current(): State | null;
+  /** Each change to what it shows, from here on. */
+  onState(send: (s: State) => void): void;
+  onPicks(keep: (picks: readonly Played[]) => void): void;
 }
 
 export function mountFretboard(root: HTMLElement, now: () => number = () => performance.now()): Tool {
   let preset: Preset | null = null;
-  let task: TaskView | null = null;
+  let prompt: string | null = null;
   let locale: Locale = "en";
-  let tutor: Mark[] = [];
+  let marks: Mark[] = [];
   let picks: Played[] = [];
   let began = 0;
   let send: (a: Answer) => void = () => {};
+  let report: (s: State) => void = () => {};
+  let keep: (picks: readonly Played[]) => void = () => {};
+  const pick = (list: Played[]) => { picks = list; keep(picks); draw(); };
 
   const draw = () => {
     root.replaceChildren();
     if (!preset) return;
+    const current = preset;
     const t = words(locale);
-    if (task) {
-      const prompt = document.createElement("p");
-      prompt.className = "prompt";
-      prompt.textContent = task.prompt;
-      root.append(prompt);
+    const neck = neckOf(preset);
+    if (prompt) {
+      const p = document.createElement("p");
+      p.className = "prompt";
+      p.textContent = prompt;
+      root.append(p);
     }
-    const frets = preset.frets;
-    const width = PAD * 2 + OPEN_W + frets * FRET_W, height = PAD * 2 + STRING_GAP * (STANDARD.length - 1);
+    const strings = neck.tuning.length, from = lowest(neck), frets = neck.frets;
+    const width = PAD * 2 + OPEN_W + (frets - from) * FRET_W, height = PAD * 2 + STRING_GAP * (strings - 1);
     const svg = document.createElementNS(SVG, "svg");
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-    svg.setAttribute("class", "neck");
+    svg.setAttribute("class", preset.handed === "left" ? "neck left" : "neck");
     svg.setAttribute("role", "group");
     svg.setAttribute("aria-label", t.neck);
-    const x = (fret: number) => (fret === 0 ? PAD + OPEN_W / 2 : PAD + OPEN_W + (fret - 0.5) * FRET_W);
+    const x = (fret: number) => (fret === from ? PAD + OPEN_W / 2 : PAD + OPEN_W + (fret - from - 0.5) * FRET_W);
     const y = (string: number) => PAD + (string - 1) * STRING_GAP;
     const el = (name: string, attrs: Record<string, string | number>, parent: Element = svg) => {
       const e = document.createElementNS(SVG, name);
@@ -56,41 +67,43 @@ export function mountFretboard(root: HTMLElement, now: () => number = () => perf
       parent.append(e);
       return e;
     };
-    // the frets, the nut, the inlays and the strings
-    el("line", { x1: PAD + OPEN_W, y1: PAD, x2: PAD + OPEN_W, y2: y(6), class: "nut" });
-    for (let f = 1; f <= frets; f++) el("line", { x1: PAD + OPEN_W + f * FRET_W, y1: PAD, x2: PAD + OPEN_W + f * FRET_W, y2: y(6), class: "fret" });
-    for (const f of INLAYS.filter((f) => f <= frets)) el("circle", { cx: x(f), cy: (y(3) + y(4)) / 2, r: 5, class: "inlay" });
-    // the octave: two dots, between strings 2 and 3 and between 4 and 5
-    if (frets >= 12) for (const [a, b] of [[2, 3], [4, 5]] as const) el("circle", { cx: x(12), cy: (y(a) + y(b)) / 2, r: 5, class: "inlay" });
-    for (let s = 1; s <= STANDARD.length; s++) el("line", { x1: PAD, y1: y(s), x2: width - PAD, y2: y(s), class: `string s${s}` });
+    // the nut (or the capo), the frets, the inlays and the strings
+    el("line", { x1: PAD + OPEN_W, y1: PAD, x2: PAD + OPEN_W, y2: y(strings), class: from > 0 ? "nut capo" : "nut" });
+    for (let f = from + 1; f <= frets; f++) el("line", { x1: PAD + OPEN_W + (f - from) * FRET_W, y1: PAD, x2: PAD + OPEN_W + (f - from) * FRET_W, y2: y(strings), class: "fret" });
+    const middle = (y(Math.floor(strings / 2)) + y(Math.floor(strings / 2) + 1)) / 2;
+    for (const f of INLAYS.filter((f) => f > from && f <= frets)) el("circle", { cx: x(f), cy: middle, r: 5, class: "inlay" });
+    // the octaves: two dots, a string pair in from each edge
+    for (const f of [12, 24, 36].filter((f) => f > from && f <= frets)) {
+      for (const [a, b] of [[2, 3], [strings - 2, strings - 1]] as const) el("circle", { cx: x(f), cy: (y(a) + y(b)) / 2, r: 5, class: "inlay" });
+    }
+    for (let s = 1; s <= strings; s++) el("line", { x1: PAD, y1: y(s), x2: width - PAD, y2: y(s), class: `string s${s}` });
 
-    const marks = [...shown(preset, task?.hideChecks ?? false), ...tutor];
-    const roleAt = (p: Position) => (marks.find((m) => same(m.position, p) && m.role === "tutor") ?? marks.find((m) => same(m.position, p)))?.role;
-    for (let s = 1; s <= STANDARD.length; s++) {
-      for (let f = 0; f <= frets; f++) {
-        const position = { string: s, fret: f };
-        const picked = picks.some((p) => same(p.position, position));
-        const role = roleAt(position);
+    for (let s = 1; s <= strings; s++) {
+      for (let f = from; f <= frets; f++) {
+        const position: Position = { string: s, fret: f };
+        const picked = picks.some((p) => same(p, position));
+        const mark = marks.find((m) => same(m.position, position));
         const g = el("g", {
-          class: ["spot", role ?? "", picked ? "picked" : ""].filter(Boolean).join(" "),
+          class: ["spot", mark ? "shown" : "", picked ? "picked" : ""].filter(Boolean).join(" "),
           role: "button", tabindex: 0, "aria-pressed": String(picked),
-          "aria-label": t.spot(s, f, pitchAt(position)),
+          "aria-label": t.spot(s, f, pitchAt(neck, position)),
           "data-string": s, "data-fret": f,
         });
         el("circle", { cx: x(f), cy: y(s), r: 11 }, g);
-        const pick = () => { picks = toggle(picks, position, Math.max(0, Math.round(now() - began))); draw(); };
-        g.addEventListener("click", pick);
-        g.addEventListener("keydown", (e) => { if ((e as KeyboardEvent).key === "Enter" || (e as KeyboardEvent).key === " ") { e.preventDefault(); pick(); } });
+        if (mark?.label) el("text", { x: x(f), y: y(s), class: "label", "aria-hidden": "true" }, g).textContent = mark.label;
+        const tap = () => pick(toggle(current, picks, position, Math.max(0, Math.round(now() - began))));
+        g.addEventListener("click", tap);
+        g.addEventListener("keydown", (e) => { if ((e as KeyboardEvent).key === "Enter" || (e as KeyboardEvent).key === " ") { e.preventDefault(); tap(); } });
       }
     }
     root.append(svg);
 
-    if (task) {
+    if (prompt) {
       const bar = document.createElement("div");
       bar.className = "answer-bar";
       const clear = Object.assign(document.createElement("button"), { type: "button", textContent: t.clear, className: "quiet" });
       clear.disabled = picks.length === 0;
-      clear.addEventListener("click", () => { picks = []; draw(); });
+      clear.addEventListener("click", () => pick([]));
       const done = Object.assign(document.createElement("button"), { type: "button", textContent: t.send, className: "primary" });
       done.disabled = picks.length === 0;
       done.addEventListener("click", () => send(answer(picks)));
@@ -99,22 +112,37 @@ export function mountFretboard(root: HTMLElement, now: () => number = () => perf
     }
   };
 
+  const show = (notes: readonly string[]): boolean => {
+    if (!preset) return false;
+    const next = highlighted(preset, notes);
+    if (!next) return false;
+    marks = next;
+    report(state(preset, marks));
+    draw();
+    return true;
+  };
+
   return {
     start(p, opts) {
       preset = p;
-      task = opts.task;
+      prompt = opts.prompt;
       locale = opts.locale;
-      tutor = [];
       picks = [];
       began = now();
+      marks = [];
+      if (!show(opts.show)) show([]);
+    },
+    restore(kept) {
+      if (!preset || kept.length === 0) return;
+      picks = [...kept];
+      began = now() - (Math.max(...picks.map((q) => q.at_ms)) + 1);
       draw();
     },
     setLocale(l) { locale = l; draw(); },
-    command(name, notes = []) {
-      if (!preset) return;
-      tutor = name === "highlight" ? highlighted(notes, preset.frets) : [];
-      draw();
-    },
+    highlight: show,
+    current: () => (preset ? state(preset, marks) : null),
     onAnswer(fn) { send = fn; },
+    onState(fn) { report = fn; },
+    onPicks(fn) { keep = fn; },
   };
 }

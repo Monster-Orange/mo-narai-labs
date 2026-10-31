@@ -1,6 +1,6 @@
 {
   "id": "narai-labs/intervals",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "sdk": "^1",
   "publisher": {
     "name": "Narai Labs",
@@ -8,14 +8,14 @@
   },
   "surfaces": {
     "embed": {
-      "url": "https://intervals.tools.michinar.dev/0.1.0/",
+      "url": "https://intervals.tools.michinar.dev/0.2.0/",
       "sdk": "^1"
     }
   },
   "preset_schema": "music.interval-preset@1",
   "answers": {
     "name_interval": "music.interval-named@1",
-    "play_interval": "music.played@2"
+    "play_interval": "music.played@1"
   },
   "commands": {
     "replay": "music.none@1"
@@ -77,77 +77,108 @@
         }
       }
     },
-    "music.played@2": {
-      "description": "What the learner played, in order: each note's pitch (scientific pitch notation) and when (ms from the start). A judge reads only pitch and at_ms, never position, so any instrument answers in this type. @1 required a guitar position on every note.",
-      "type": "object",
+    "music.played@1": {
+      "$defs": {
+        "Note": {
+          "additionalProperties": false,
+          "properties": {
+            "pitch": {
+              "description": "MIDI note number (60 is middle C)",
+              "maximum": 127,
+              "minimum": 0,
+              "title": "Pitch",
+              "type": "integer"
+            },
+            "at_ms": {
+              "description": "ms from the task's start, as the tool heard it",
+              "minimum": 0,
+              "title": "At Ms",
+              "type": "integer"
+            },
+            "string": {
+              "anyOf": [
+                {
+                  "maximum": 12,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "1 is the highest-pitched string",
+              "title": "String"
+            },
+            "fret": {
+              "anyOf": [
+                {
+                  "maximum": 36,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Fret"
+            },
+            "velocity": {
+              "anyOf": [
+                {
+                  "maximum": 1,
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Velocity"
+            }
+          },
+          "required": [
+            "pitch",
+            "at_ms"
+          ],
+          "title": "Note",
+          "type": "object"
+        }
+      },
       "additionalProperties": false,
+      "description": "music.played@1",
+      "properties": {
+        "notes": {
+          "items": {
+            "$ref": "#/$defs/Note"
+          },
+          "maxItems": 2000,
+          "title": "Notes",
+          "type": "array"
+        },
+        "latency_ms": {
+          "anyOf": [
+            {
+              "description": "The latency the tool measured, in ms, sent with what it reports",
+              "maximum": 1000,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Latency Ms"
+        }
+      },
       "required": [
         "notes"
       ],
-      "properties": {
-        "notes": {
-          "type": "array",
-          "maxItems": 64,
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "pitch",
-              "at_ms"
-            ],
-            "properties": {
-              "pitch": {
-                "type": "string",
-                "pattern": "^[A-G]#?-?\\d$"
-              },
-              "at_ms": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "position": {
-                "description": "Where on the instrument it was played: display data, never judged.",
-                "oneOf": [
-                  {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "required": [
-                      "string",
-                      "fret"
-                    ],
-                    "properties": {
-                      "string": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "maximum": 6
-                      },
-                      "fret": {
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 24
-                      }
-                    }
-                  },
-                  {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "required": [
-                      "key"
-                    ],
-                    "properties": {
-                      "key": {
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 127,
-                        "description": "The key's MIDI number."
-                      }
-                    }
-                  }
-                ]
-              }
-            }
-          }
-        }
-      }
+      "title": "Played",
+      "type": "object"
     },
     "music.none@1": {
       "type": "object",

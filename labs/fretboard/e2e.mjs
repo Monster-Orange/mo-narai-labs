@@ -1,5 +1,7 @@
-// The fretboard end to end in the SDK's harness, headless: the host starts it on a judged interval task, the learner
-// plays C#4 (string 2, fret 2) and sends it, and the harness took a tool.answer in music.played@2 with nothing refused.
+// The fretboard end to end in the SDK's harness, headless: the host sets the neck up (Narai's music.neck-preset@1) on a
+// judged interval task whose payload shows the root, A3. The neck reports what it shows (tool.state, music.neck-state@1),
+// the learner plays C#4 (string 2, fret 2), and Send takes a tool.answer in music.played@1, with nothing refused. The picks
+// kept in this launch's storage are test/contract.test.ts's: the harness doesn't reconnect a reloaded frame (FINDINGS.md).
 // Build first (`pnpm build`).
 import assert from "node:assert/strict";
 import { chromium } from "@playwright/test";
@@ -13,20 +15,21 @@ try {
   const tool = page.frameLocator("iframe");
   await tool.locator(".prompt").waitFor({ timeout: 15_000 });
   assert.equal(await tool.locator(".prompt").textContent(), "Play the note a major third above A3.");
-  // the interval's root is shown; its target isn't (assist: none)
-  assert.equal(await tool.locator(".spot.shown").count(), 0);
-  assert.ok((await tool.locator(".spot.root").count()) > 0);
+  // the task's root is shown, labelled; its target isn't
+  assert.deepEqual(await tool.locator(".spot.shown").evaluateAll((s) => s.map((g) => `${g.dataset.string}/${g.dataset.fret}`)), ["3/2", "4/7", "5/12"]);
+  assert.equal(await tool.locator('.spot[data-string="3"][data-fret="2"] .label').textContent(), "A");
   await tool.locator('.spot[data-string="2"][data-fret="2"]').click();
+  await tool.locator('.spot[data-string="2"][data-fret="2"][aria-pressed="true"]').waitFor();
   await tool.getByRole("button", { name: "Send" }).click();
   await page.waitForTimeout(500);
   const seen = h.events.filter((e) => e.direction === "in");
-  const refused = h.events.filter((e) => !e.ok);
-  assert.deepEqual(refused, [], "nothing refused");
-  assert.deepEqual(seen.map((e) => e.type), ["tool.ready", "tool.answer"]);
-  const answer = seen[1].message;
-  assert.deepEqual(answer.payload.schema, "music.played@2");
-  assert.deepEqual(answer.payload.notes.map((n) => [n.pitch, n.position]), [["C#4", { string: 2, fret: 2 }]]);
-  console.log("e2e: the fretboard started, took a pick and answered in music.played@2, through the harness");
+  assert.deepEqual(h.events.filter((e) => !e.ok), [], "nothing refused");
+  const state = seen.find((e) => e.type === "tool.state")?.message.payload;
+  assert.deepEqual(state?.highlighted, [{ string: 3, fret: 2, label: "A" }, { string: 4, fret: 7, label: "A" }, { string: 5, fret: 12, label: "A" }]);
+  const answer = seen.findLast((e) => e.type === "tool.answer")?.message;
+  assert.equal(answer?.payload.schema, "music.played@1");
+  assert.deepEqual(answer.payload.notes.map((n) => [n.pitch, n.string, n.fret]), [[61, 2, 2]]);
+  console.log("e2e: the neck took Narai's preset, reported what it shows and answered in music.played@1, through the harness");
 } finally {
   await browser.close();
   await h.close();

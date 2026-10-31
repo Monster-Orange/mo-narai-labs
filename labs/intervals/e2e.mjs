@@ -9,7 +9,7 @@ const browser = await chromium.launch();
 try {
   for (const [name, act, expect] of [
     ["name", (tool) => tool.locator('.name[data-interval="M3"]').click(), { schema: "music.interval-named@1", interval: "M3" }],
-    ["play", (tool) => tool.locator('.key[data-key="61"]').click(), { schema: "music.played@2", pitches: ["C#4"] }],
+    ["play", (tool) => tool.locator('.key[data-key="61"]').click(), { schema: "music.played@1", pitches: [61] }],
   ]) {
     const h = await harness(name);
     try {
@@ -33,7 +33,7 @@ try {
       await h.close();
     }
   }
-  console.log("e2e: intervals named M3 (music.interval-named@1) and played C#4 (music.played@2), through the harness");
+  console.log("e2e: intervals named M3 (music.interval-named@1) and played C#4 (music.played@1), through the harness");
 } finally {
   await browser.close();
 }

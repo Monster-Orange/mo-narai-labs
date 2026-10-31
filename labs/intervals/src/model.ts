@@ -1,7 +1,7 @@
 // What the trainer plays and what it sends, as data (no DOM). The payload families are the manifest's own
 // (narai-tool.json `payloads`): a step's preset is the sound (one note or two), never the key; an answer is the interval
 // the learner named or the notes they played, never whether it was right (D4: Narai judges). The Tutor may `replay`.
-import { INTERVALS, midi, pitchName, type Interval } from "./theory.ts";
+import { INTERVALS, midi, type Interval } from "./theory.ts";
 
 /** music.interval-preset@1: the notes the trainer plays, low to high as the step wrote them. */
 export interface Preset { schema: "music.interval-preset@1"; notes: string[] }
@@ -11,10 +11,11 @@ export type Mode = "name" | "play" | "free";
 
 /** music.interval-named@1: the interval named. */
 export type Named = { schema: "music.interval-named@1"; interval: Interval };
-/** A played key: its pitch, when (ms from the start), and which key (display data, never judged). */
-export interface Played { pitch: string; at_ms: number; position: { key: number } }
-/** music.played@2, the fretboard's type too: one judge, two tools. */
-export type PlayedAnswer = { schema: "music.played@2"; notes: Played[] };
+/** A played key as Narai's music.played@1 carries it: its MIDI pitch (on a keyboard the pitch is the key) and when (ms
+ *  from the start). */
+export interface Played { pitch: number; at_ms: number }
+/** music.played@1, Narai's, declared unchanged: the fretboard answers in it too (one judge, two tools). */
+export type PlayedAnswer = { schema: "music.played@1"; notes: Played[] };
 export type Answer = Named | PlayedAnswer;
 
 // #region mode
@@ -34,14 +35,14 @@ export function keys(preset: Preset): number[] {
 
 /** The learner's keys, toggled: a second tap on a key takes it back. */
 export function toggle(picks: readonly Played[], key: number, at_ms: number): Played[] {
-  return picks.some((p) => p.position.key === key)
-    ? picks.filter((p) => p.position.key !== key)
-    : [...picks, { pitch: pitchName(key), at_ms, position: { key } }];
+  return picks.some((p) => p.pitch === key)
+    ? picks.filter((p) => p.pitch !== key)
+    : [...picks, { pitch: key, at_ms }];
 }
 
 /** The answer for the keys played, in the order they were played. */
 export function played(picks: readonly Played[]): PlayedAnswer {
-  return { schema: "music.played@2", notes: [...picks].sort((a, b) => a.at_ms - b.at_ms).map((p) => ({ ...p, position: { ...p.position } })) };
+  return { schema: "music.played@1", notes: [...picks].sort((a, b) => a.at_ms - b.at_ms).map((p) => ({ ...p })) };
 }
 
 /** The answer for an interval named. */

@@ -36,9 +36,9 @@ describe("the answers", () => {
     picks = toggle(picks, 61, 300);
     picks = toggle(picks, 57, 1200);
     picks = toggle(picks, 57, 1500);
-    expect(played(picks)).toEqual({ schema: "music.played@2", notes: [
-      { pitch: "C#4", at_ms: 300, position: { key: 61 } },
-      { pitch: "E4", at_ms: 900, position: { key: 64 } },
+    expect(played(picks)).toEqual({ schema: "music.played@1", notes: [
+      { pitch: 61, at_ms: 300 },
+      { pitch: 64, at_ms: 900 },
     ] });
   });
 
