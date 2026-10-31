@@ -23,7 +23,8 @@ describe("narai-labs/fretboard's manifest", () => {
     expect(manifestProblems(manifest)).toEqual([]);
     expect(manifest.id).toBe("narai-labs/fretboard");
     expect(manifest.state).toBe("music.neck-state@1");
-    expect(manifest.task_payloads).toEqual({ play_target: "music.notes@1" });
+    expect(manifest.task_payloads).toEqual({ play_target: "music.notes@1", play_passage: "music.notes@1" });
+    expect(manifest.answers).toEqual({ play_target: "music.played@1", play_passage: "music.played@1" });
   });
 
   it("asks to play sound and to hear the microphone (Narai grants the microphone per step), and no network", () => {
@@ -45,6 +46,21 @@ describe("a launch", () => {
     close = run.close;
     expect(run.tool.start.preset).toMatchObject(PRESET);
     expect(run.tool.task).toEqual(TASK);
+  });
+
+  it("a passage task (Narai's play_passage) shows its notes and takes what was played, in music.played@1", async () => {
+    const passage = { id: "itm_am_pent", kind: "play_passage", assist: "none" as const, prompt: "Play A minor pentatonic up from A3.",
+      payload: { schema: "music.notes@1", notes: [57, 60, 62, 64, 67] } };
+    const run = await launch(manifest, { launch: "lch_fretboard08", locale: "en", preset: PRESET, task: passage });
+    close = run.close;
+    expect(run.tool.task).toEqual(passage);
+    run.tool.ready("en");
+    let picks = toggle(PRESET, [], { string: 3, fret: 2 }, 400); // A3
+    picks = toggle(PRESET, picks, { string: 2, fret: 1 }, 900); // C4
+    run.tool.answer(answer(picks));
+    await run.settle();
+    expect(run.received.refused).toEqual([]);
+    expect(run.received.answers.map((a) => (a.payload as unknown as { notes: { pitch: number }[] }).notes.map((n) => n.pitch))).toEqual([[57, 60]]);
   });
 
   it("a task's payload is the one its kind declares; another never reaches the tool", async () => {

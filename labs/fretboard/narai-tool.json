@@ -1,6 +1,6 @@
 {
   "id": "narai-labs/fretboard",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "sdk": "^1",
   "publisher": {
     "name": "Narai Labs",
@@ -8,16 +8,18 @@
   },
   "surfaces": {
     "embed": {
-      "url": "https://fretboard.tools.michinar.dev/0.5.0/",
+      "url": "https://fretboard.tools.michinar.dev/0.6.0/",
       "sdk": "^1"
     }
   },
   "preset_schema": "music.neck-preset@1",
   "answers": {
-    "play_target": "music.played@1"
+    "play_target": "music.played@1",
+    "play_passage": "music.played@1"
   },
   "task_payloads": {
-    "play_target": "music.notes@1"
+    "play_target": "music.notes@1",
+    "play_passage": "music.notes@1"
   },
   "commands": {
     "highlight": "music.notes@1",
