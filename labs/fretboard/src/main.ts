@@ -3,7 +3,7 @@
 // payload says what to show; the learner's picks go back as the task's answer (music.played@1); what the neck shows goes
 // to Narai as its state (music.neck-state@1); the Tutor may `highlight` and `clear`, nothing else, and each is answered
 // (a highlight that names no note is refused). The picks are kept in this launch's storage, so a reload keeps them.
-// The course quotes the #region blocks here, in model.ts, words.ts and harness.mjs (narai-tools, demo "The
+// The course quotes the #region blocks here (session, commands, storage), in model.ts, words.ts and harness.mjs (narai-tools, demo "The
 // fretboard"): keep each one whole and short.
 import { CommandRefused, connect, type Payload } from "@michinarai/sdk";
 import { manifest } from "./manifest.ts";
@@ -23,22 +23,30 @@ const tool = mountFretboard(root);
 const locale = pickLocale([session.start.locale, ...session.start.fallback]);
 const task = session.task;
 tool.onAnswer((a) => session.answer(a));
-tool.onPicks((picks) => void session.storage.set("picks", picks));
-session.onCommand("highlight", (p: Payload) => {
-  if (!tool.highlight(notesOf(p))) throw new CommandRefused("invalid_payload", "a highlight names notes on this neck");
-});
-session.onCommand("clear", () => void tool.highlight([]));
-session.onLocale((m) => tool.setLocale(pickLocale([m.locale, ...m.fallback])));
 if (preset) tool.start(preset, { locale, prompt: task?.prompt ?? null, show: notesOf(task?.payload) });
 session.ready(locale);
-// storage answers once the tool is ready: the picks kept before a reload come back then
-const kept = await session.storage.get("picks");
-if (kept.ok) tool.restore(readPicks(kept.value));
 // what it shows, once ready, then every change
 const shown = tool.current();
 if (shown) session.state(shown);
 tool.onState((s) => session.state(s));
 // #endregion session
+
+// #region commands
+// a command that came before its handler waits for it (the SDK holds it); each is answered: an ack, or the refusal
+session.onCommand("highlight", (p: Payload) => {
+  if (!tool.highlight(notesOf(p))) throw new CommandRefused("invalid_payload", "a highlight names notes on this neck");
+});
+session.onCommand("clear", () => void tool.highlight([]));
+session.onLocale((m) => tool.setLocale(pickLocale([m.locale, ...m.fallback])));
+// #endregion commands
+
+// #region storage
+// this launch's own: each change to the picks is kept, and storage answers once the tool is ready, so the picks kept
+// before a reload come back then
+tool.onPicks((picks) => void session.storage.set("picks", picks));
+const kept = await session.storage.get("picks");
+if (kept.ok) tool.restore(readPicks(kept.value));
+// #endregion storage
 
 /** music.notes@1's notes (the SDK has checked a command's payload; a task's is read here, defensively). */
 function notesOf(p: Payload | null | undefined): string[] {
