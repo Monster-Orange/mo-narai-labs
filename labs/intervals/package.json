@@ -1,6 +1,6 @@
 {
   "name": "@narai-labs/intervals",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "narai-labs/intervals: an interval trainer. It plays two notes for the learner to name, or one to play the interval above on a keyboard.",
   "type": "module",
@@ -12,6 +12,6 @@
     "e2e": "vite build && node e2e.mjs"
   },
   "dependencies": {
-    "@michinarai/sdk": "git+https://github.com/Monster-Orange/mo-narai-sdk.git#d7a46345a878b2857de4f25c878b19ae545c16b9"
+    "@michinarai/sdk": "git+https://github.com/Monster-Orange/mo-narai-sdk.git#723bc7cbb8f4e7b5432460f4e18422a3c1d05037"
   }
 }

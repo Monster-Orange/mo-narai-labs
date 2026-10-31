@@ -48,7 +48,7 @@ export function mountTrainer(root: HTMLElement, player: Player, now: () => numbe
     board.setAttribute("aria-label", t.keyboard);
     const first = notes()[0];
     for (const key of keys(preset)) {
-      const picked = picks.some((p) => p.position.key === key);
+      const picked = picks.some((p) => p.pitch === key);
       const k = button("", ["key", black(key) ? "black" : "white", key === first && task?.mode === "play" ? "root" : "", picked ? "picked" : ""].filter(Boolean).join(" "), () => {
         player.play([key]);
         if (task?.mode !== "play") return;

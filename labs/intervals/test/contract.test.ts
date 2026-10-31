@@ -1,7 +1,7 @@
 // The trainer against the SDK, both sides: its manifest is one the SDK takes, both its answers cross a real channel,
 // its played answer is the fretboard's own type, and what the manifest doesn't declare doesn't cross.
 import { afterEach, describe, expect, it } from "vitest";
-import { manifestProblems } from "@michinarai/sdk";
+import { manifestProblems, musicPayloads } from "@michinarai/sdk";
 import { launch } from "@michinarai/sdk/testing";
 import { manifest } from "../src/manifest.ts";
 import { named, played, toggle } from "../src/model.ts";
@@ -19,9 +19,10 @@ describe("narai-labs/intervals' manifest", () => {
     expect(manifest.capabilities).toEqual({ audio_out: true, microphone: false, network: "none" });
   });
 
-  it("answers a played interval in the fretboard's music.played@2, schema for schema: one judge, two tools", () => {
-    expect(manifest.answers?.play_interval).toBe("music.played@2");
-    expect(manifest.payloads?.["music.played@2"]).toEqual(fretboard.payloads["music.played@2"]);
+  it("answers a played interval in Narai's music.played@1, declared unchanged, as the fretboard does: one judge, two tools", () => {
+    expect(manifest.answers?.play_interval).toBe("music.played@1");
+    expect(manifest.payloads?.["music.played@1"]).toEqual(musicPayloads("music.played@1")["music.played@1"]);
+    expect(manifest.payloads?.["music.played@1"]).toEqual(fretboard.payloads["music.played@1"]);
   });
 });
 
@@ -44,7 +45,7 @@ describe("a launch", () => {
     const run = await launch(manifest, { launch: "lch_intervals02", locale: "en", preset: PRESET });
     close = run.close;
     const got: string[] = [];
-    run.tool.onCommand("replay", (_p, m) => got.push(m.command));
+    run.tool.onCommand("replay", (_p, m) => { got.push(m.command); });
     run.host.command("replay", { schema: "music.none@1" });
     expect(() => run.host.command("highlight", { schema: "music.notes@1", notes: ["A3"] })).toThrow();
     await run.settle();

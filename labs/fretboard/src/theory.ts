@@ -1,5 +1,6 @@
-// The fretboard's music: pitches in scientific pitch notation ("C#4", what crosses the wire in every language), the
-// guitar's standard tuning, and where a note, a scale or an interval lies on the neck. Pure, so the tests read it.
+// The fretboard's music: pitches in scientific pitch notation ("C#4", how the Tutor names them in every language) and as
+// MIDI numbers (what the learner played crosses the wire as), a neck as Narai's music.neck-preset@1 sets it up, and where
+// a note, a scale or an interval lies on it. Pure, so the tests read it.
 
 export const PITCH_CLASSES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"] as const;
 export type PitchClass = (typeof PITCH_CLASSES)[number];
@@ -10,8 +11,13 @@ const NOTE = /^([A-G])([#b]?)(-?\d)?$/;
 /** A string (1 is the high E) and a fret (0 is open). */
 export interface Position { string: number; fret: number }
 
-/** Standard tuning, string 1 to 6, as MIDI numbers: E4 B3 G3 D3 A2 E2. */
-export const STANDARD = [64, 59, 55, 50, 45, 40] as const;
+/** A neck as Narai's music.neck-preset@1 sets it up: its tuning (MIDI per string, the lowest string first, as Narai
+ *  writes it), its frets, and a capo. String 1 is the highest-pitched string, as music.played@1 numbers them. */
+export interface Neck { tuning: readonly number[]; frets: number; capo?: number | null }
+
+/** Standard tuning, lowest string first, as Narai's preset writes it: E2 A2 D3 G3 B3 E4. */
+export const STANDARD = [40, 45, 50, 55, 59, 64] as const;
+export const STANDARD_NECK: Neck = { tuning: STANDARD, frets: 12, capo: null };
 
 /** A note's pitch class (sharps; flats read as their sharp), or null when it isn't a note. */
 export function pitchClass(note: string): PitchClass | null {
@@ -41,30 +47,34 @@ export function pitchName(n: number): string {
   return `${classOf(n)}${Math.floor(n / 12) - 1}`;
 }
 
-/** The MIDI number sounding at a position in standard tuning. */
-function sounding(p: Position): number {
-  const open = STANDARD[p.string - 1];
-  if (open === undefined || p.fret < 0) throw new RangeError(`no string ${p.string}, fret ${p.fret}`);
+/** The lowest fret a neck plays: the capo's (its string sounds there open), else the nut. */
+export const lowest = (neck: Neck): number => neck.capo ?? 0;
+
+/** The MIDI number sounding at a position on a neck. */
+export function sounding(neck: Neck, p: Position): number {
+  const open = neck.tuning[neck.tuning.length - p.string];
+  if (open === undefined || p.fret < lowest(neck) || p.fret > neck.frets) throw new RangeError(`no string ${p.string}, fret ${p.fret}`);
   return open + p.fret;
 }
 
-/** The pitch sounding at a position in standard tuning. */
-export function pitchAt(p: Position): string {
-  return pitchName(sounding(p));
+/** The pitch sounding at a position on a neck. */
+export function pitchAt(neck: Neck, p: Position): string {
+  return pitchName(sounding(neck, p));
 }
 
-/** Every position up to `frets`, string 1 first, then by fret. */
-export function positions(frets: number): Position[] {
-  return STANDARD.flatMap((_, s) => Array.from({ length: frets + 1 }, (_, fret) => ({ string: s + 1, fret })));
+/** Every position a neck plays (from its capo up), string 1 first, then by fret. */
+export function positions(neck: Neck): Position[] {
+  const from = lowest(neck);
+  return neck.tuning.flatMap((_, s) => Array.from({ length: neck.frets - from + 1 }, (_, i) => ({ string: s + 1, fret: from + i })));
 }
 
 /** Where a note lies: every position of its pitch class, or, with an octave ("A3"), of that pitch alone. */
-export function positionsOf(note: string, frets: number): Position[] {
+export function positionsOf(note: string, neck: Neck): Position[] {
   const exact = midi(note);
   const pc = pitchClass(note);
   if (pc === null) return [];
-  return positions(frets).filter((p) => {
-    const n = sounding(p);
+  return positions(neck).filter((p) => {
+    const n = sounding(neck, p);
     return exact === null ? classOf(n) === pc : n === exact;
   });
 }
@@ -97,3 +107,15 @@ export function above(root: string, interval: Interval): string {
 }
 
 export const same = (a: Position, b: Position): boolean => a.string === b.string && a.fret === b.fret;
+
+const DEGREES = ["1", "b2", "2", "b3", "3", "4", "b5", "5", "b6", "6", "b7", "7"] as const;
+const NAMES = Object.keys(INTERVALS).slice(0, 12);
+
+/** A highlighted spot's label, as the preset's `labels` asks: its note, its interval from the root, or its degree in
+ *  the root's key; none for `none` (or with no root to count from). */
+export function labelOf(n: number, root: number | null, labels: "none" | "notes" | "intervals" | "degrees"): string | null {
+  if (labels === "notes") return classOf(n);
+  if (labels === "none" || root === null) return null;
+  const step = (((n - root) % 12) + 12) % 12;
+  return (labels === "intervals" ? NAMES[step] : DEGREES[step]) ?? null;
+}

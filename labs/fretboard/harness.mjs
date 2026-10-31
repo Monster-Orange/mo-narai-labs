@@ -1,27 +1,31 @@
 // The fretboard in the SDK's harness (`narai dev` until @narai/cli has it): Narai's host on http://localhost, the tool
-// on http://127.0.0.1 in a sandboxed frame, a judged interval task on the neck. Prints the host's address; opens
-// nothing. Build first (`pnpm build`).
+// on http://127.0.0.1 in a sandboxed frame, a guitar neck (Narai's music.neck-preset@1) and a judged task whose payload
+// says what to show. Prints the host's address; opens nothing. Build first (`pnpm build`).
 //
-//   node harness.mjs [show]     show: interval (default) | note | scale | practice (the scale, no task)
+//   node harness.mjs [show]     show: interval (default) | note | scale | practice (no task: the Tutor's highlight shows)
 import { readFileSync } from "node:fs";
 import { defineTool } from "@michinarai/sdk";
 import { startHarness } from "@michinarai/sdk/harness";
 
+/** Standard tuning on a 12-fret neck, as Narai's preset writes it: MIDI per string, the lowest first. */
+export const NECK = { schema: "music.neck-preset@1", tuning: [40, 45, 50, 55, 59, 64], frets: 12, capo: null, handed: "right", labels: "notes" };
+
 // #region shows
+/** What a step shows is its task's: the notes to highlight (an interval's root alone, so the target isn't given away). */
+const task = (id, prompt, notes) => ({ id, kind: "play_target", assist: "none", prompt, payload: { schema: "music.notes@1", notes } });
 export const SHOWS = {
-  interval: { show: { kind: "interval", root: "A3", interval: "M3" }, task: { id: "itm_maj3_A3", kind: "play_target", assist: "none", prompt: "Play the note a major third above A3." } },
-  note: { show: { kind: "note", note: "C" }, task: { id: "itm_every_C", kind: "play_target", assist: "none", prompt: "Play every C you can find below the 12th fret." } },
-  scale: { show: { kind: "scale", key: "A", scale: "minor-pentatonic" }, task: { id: "itm_am_pent", kind: "play_target", assist: "none", prompt: "Play A minor pentatonic in the fifth position." } },
-  practice: { show: { kind: "scale", key: "A", scale: "minor-pentatonic" }, task: undefined },
+  interval: task("itm_maj3_A3", "Play the note a major third above A3.", ["A3"]),
+  note: task("itm_every_C", "Play every C you can find below the 12th fret.", ["C"]),
+  scale: task("itm_am_pent", "Play A minor pentatonic in the fifth position.", ["A", "C", "D", "E", "G"]),
+  practice: undefined,
 };
 // #endregion shows
 
 export async function harness(name = "interval", ports = {}) {
   const manifest = defineTool(JSON.parse(readFileSync(new URL("./narai-tool.json", import.meta.url), "utf8")));
-  const { show, task } = SHOWS[name];
   return startHarness({
-    manifest, toolDir: new URL("./dist", import.meta.url).pathname, locale: "en", fallback: ["en"], task, ...ports,
-    preset: { schema: "music.neck-preset@1", instrument: "guitar", tuning: "standard", frets: 12, show },
+    manifest, toolDir: new URL("./dist", import.meta.url).pathname, locale: "en", fallback: ["en"], task: SHOWS[name], ...ports,
+    preset: NECK,
   });
 }
 
