@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { VERDICT_KEYS } from "@michinarai/sdk";
-import { answer, heard, highlighted, readPicks, readShow, state, toggle, type Preset, type Show } from "../src/model.ts";
+import { answer, heard, highlighted, readPicks, readShow, rove, state, toggle, type Preset, type Show } from "../src/model.ts";
 import { PITCH_CLASSES, STANDARD, midi, pitchClass } from "../src/theory.ts";
 
 const PRESET: Preset = { schema: "music.neck-preset@1", tuning: [...STANDARD], frets: 12, capo: null, handed: "right", labels: "notes" };
@@ -80,5 +80,34 @@ describe("the learner's answer", () => {
     expect(readPicks([{ pitch: 61, at_ms: 900, string: 2 }])).toEqual([]); // half a place is none
     expect(readPicks([{ pitch: "C#4", at_ms: 0, string: 2, fret: 2 }, null, 3])).toEqual([]);
     expect(readPicks({ not: "picks" })).toEqual([]);
+  });
+});
+
+describe("the keyboard: the neck is one tab stop, the arrows move on it", () => {
+  const at = { string: 3, fret: 2 };
+  it("up and down cross the strings, left and right the frets, and stop at the edges", () => {
+    expect(rove(PRESET, at, "ArrowUp")).toEqual({ string: 2, fret: 2 });
+    expect(rove(PRESET, at, "ArrowDown")).toEqual({ string: 4, fret: 2 });
+    expect(rove(PRESET, at, "ArrowRight")).toEqual({ string: 3, fret: 3 });
+    expect(rove(PRESET, at, "ArrowLeft")).toEqual({ string: 3, fret: 1 });
+    expect(rove(PRESET, { string: 1, fret: 0 }, "ArrowUp")).toEqual({ string: 1, fret: 0 });
+    expect(rove(PRESET, { string: 6, fret: 12 }, "ArrowDown")).toEqual({ string: 6, fret: 12 });
+    expect(rove(PRESET, { string: 3, fret: 0 }, "ArrowLeft")).toEqual({ string: 3, fret: 0 });
+    expect(rove(PRESET, { string: 3, fret: 12 }, "ArrowRight")).toEqual({ string: 3, fret: 12 });
+  });
+  it("Home and End go to the string's open note (or the capo) and its last fret", () => {
+    expect(rove(PRESET, at, "Home")).toEqual({ string: 3, fret: 0 });
+    expect(rove(PRESET, at, "End")).toEqual({ string: 3, fret: 12 });
+    expect(rove({ ...PRESET, capo: 3 }, { string: 3, fret: 5 }, "Home")).toEqual({ string: 3, fret: 3 });
+    expect(rove({ ...PRESET, capo: 3 }, { string: 3, fret: 3 }, "ArrowLeft")).toEqual({ string: 3, fret: 3 });
+  });
+  it("a left hand's neck is mirrored, so left and right are too", () => {
+    const left: Preset = { ...PRESET, handed: "left" };
+    expect(rove(left, at, "ArrowRight")).toEqual({ string: 3, fret: 1 });
+    expect(rove(left, at, "ArrowLeft")).toEqual({ string: 3, fret: 3 });
+  });
+  it("any other key isn't the neck's", () => {
+    expect(rove(PRESET, at, "Tab")).toBeNull();
+    expect(rove(PRESET, at, "Enter")).toBeNull();
   });
 });

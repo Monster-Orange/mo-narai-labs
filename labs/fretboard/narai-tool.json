@@ -1,6 +1,6 @@
 {
   "id": "narai-labs/fretboard",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "sdk": "^1",
   "publisher": {
     "name": "Narai Labs",
@@ -8,7 +8,7 @@
   },
   "surfaces": {
     "embed": {
-      "url": "https://fretboard.tools.michinar.dev/0.6.0/",
+      "url": "https://fretboard.tools.michinar.dev/0.6.1/",
       "sdk": "^1"
     }
   },

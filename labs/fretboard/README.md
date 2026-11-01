@@ -27,6 +27,8 @@ It's the course's running example: *The fretboard* module reads it file by file.
   step that grants it, and the start says so (`granted`). No grant, no Listen button. The SDK doesn't carry
   `granted` yet ([`FINDINGS.md`](../../FINDINGS.md) #10), so for now the button never shows.
 - `latency_ms` on `music.played@1`: how late the tool hears, sent with any answer that has heard notes.
+- The keyboard: the neck is one tab stop (a roving tabindex). The arrows move between strings and frets, Home and End
+  go to a string's open note and its last fret, and Enter or Space plays. Each spot says its string, fret and note.
 
 **Run it**
 
