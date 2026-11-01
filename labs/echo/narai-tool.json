@@ -1,0 +1,18 @@
+{
+  "id": "narai-labs/echo",
+  "name": { "en": "Echo", "ja": "エコー" },
+  "version": "0.1.0",
+  "sdk": "^1",
+  "publisher": { "name": "Narai Labs", "url": "https://michinar.ai" },
+  "surfaces": {
+    "embed": { "url": "https://echo.tools.michinar.dev/0.1.0/", "sdk": "^1" },
+    "account_link": {
+      "url": "https://echo.tools.michinar.dev/link",
+      "client_id": "https://echo.tools.michinar.dev/oauth/client.json",
+      "webhook": "https://echo.tools.michinar.dev/oauth/unlinked"
+    }
+  },
+  "assist": "honors",
+  "locales": ["en"],
+  "capabilities": { "audio_out": false, "microphone": false, "network": "none" }
+}
