@@ -1,9 +1,10 @@
 {
   "id": "narai-labs/hello",
-  "version": "0.1.1",
+  "name": { "en": "Hello", "ja": "ハロー" },
+  "version": "0.1.2",
   "sdk": "^1",
   "publisher": { "name": "Narai Labs", "url": "https://michinar.ai" },
-  "surfaces": { "embed": { "url": "https://hello.tools.michinar.dev/0.1.1/", "sdk": "^1" } },
+  "surfaces": { "embed": { "url": "https://hello.tools.michinar.dev/0.1.2/", "sdk": "^1" } },
   "preset_schema": "hello.options@1",
   "answers": { "pick": "hello.choice@1" },
   "practice": { "pick": "hello.choice@1" },

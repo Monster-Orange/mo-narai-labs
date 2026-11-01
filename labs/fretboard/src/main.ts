@@ -27,8 +27,8 @@ const tool = mountFretboard(root, undefined, player());
 const locale = pickLocale(session.start, LOCALES);
 const task = session.task;
 tool.onAnswer((a) => session.answer(a));
-// `granted` is the step's grant (FINDINGS #10: not in the SDK yet, so none until it is): no grant, no Listen
-const mic = micAllowed((session.start as { granted?: unknown }).granted);
+// `granted` is the step's grant (SDK 0.3.0): no grant, no Listen
+const mic = micAllowed(session.start.granted);
 if (preset) tool.start(preset, { locale, prompt: task?.prompt ?? null, show: readShow(task?.payload) ?? NOTHING, mic });
 session.ready(locale);
 // what it shows, once ready, then every change
