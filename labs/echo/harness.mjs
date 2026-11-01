@@ -1,6 +1,6 @@
 // The echo fixture in the SDK's harness: Narai's host on http://localhost, the tool on http://127.0.0.1 in a sandboxed
-// frame. The harness has no linked learner, so it shows "none". Prints the host's address; opens nothing. Build first
-// (`pnpm build`).
+// frame, for no linked learner (it shows "none") unless the e2e passes a `subject`. Prints the host's address; opens
+// nothing. Build first (`pnpm build`).
 //
 //   node harness.mjs
 import { readFileSync } from "node:fs";

@@ -8,5 +8,5 @@ Its manifest declares `surfaces.account_link`, since a start carries a subject o
 placeholders on one origin: nothing calls them. It is never registered anywhere but a test.
 
 ```sh
-pnpm --filter @narai-labs/echo dev    # the harness, with no linked learner: it shows none
+pnpm --filter @narai-labs/echo dev    # the harness, with no linked learner: it shows none (the e2e also runs a linked one)
 ```
