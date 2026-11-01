@@ -1,7 +1,7 @@
 {
   "id": "narai-labs/rhythm",
   "name": { "en": "Rhythm", "ja": "リズム" },
-  "version": "0.2.2",
+  "version": "0.2.3",
   "sdk": "^1",
   "publisher": {
     "name": "Narai Labs",
@@ -9,7 +9,7 @@
   },
   "surfaces": {
     "embed": {
-      "url": "https://rhythm.tools.michinar.dev/0.2.2/",
+      "url": "https://rhythm.tools.michinar.dev/0.2.3/",
       "sdk": "^1"
     }
   },

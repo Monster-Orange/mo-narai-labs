@@ -1,6 +1,6 @@
 {
   "name": "@narai-labs/rhythm",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "license": "Apache-2.0",
   "private": true,
   "description": "narai-labs/rhythm: a rhythm tapper. The learner taps a t\u0101l cycle; free play is reported as practice, in batches.",

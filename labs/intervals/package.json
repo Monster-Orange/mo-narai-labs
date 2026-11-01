@@ -1,6 +1,6 @@
 {
   "name": "@narai-labs/intervals",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "license": "Apache-2.0",
   "private": true,
   "description": "narai-labs/intervals: an interval trainer. It plays two notes for the learner to name, or one to play the interval above on a keyboard.",
