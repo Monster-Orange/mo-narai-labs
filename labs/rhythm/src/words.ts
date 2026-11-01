@@ -8,17 +8,21 @@ export type Locale = (typeof LOCALES)[number];
 // #endregion locale
 
 interface Words {
+  /** With no task: the line it shows instead of a prompt (it's never dead). */
+  practice: string;
   cycle: (name: string | null, beats: number, groups: readonly number[]) => string;
   tap: string; send: string; clear: string; hand: Record<"clap" | "wave", string>; tapped: (n: number) => string; countIn: (n: number) => string;
 }
 
 const WORDS: Record<Locale, Words> = {
   en: {
+    practice: "Practice: Narai isn't asking anything yet.",
     cycle: (name, beats, groups) => `${name ? `${name}: ` : ""}${beats} beats, ${groups.join(" + ")}`,
     tap: "Tap", send: "Send", clear: "Clear", hand: { clap: "clap", wave: "wave" }, tapped: (n) => (n === 1 ? "1 tap" : `${n} taps`),
     countIn: (n) => `Starting in ${n}`,
   },
   ja: {
+    practice: "練習モード：Narai からの質問はまだありません。",
     cycle: (name, beats, groups) => `${name ? `${name}：` : ""}${beats}拍（${groups.join(" + ")}）`,
     tap: "タップ", send: "送る", clear: "クリア", hand: { clap: "手を打つ", wave: "手を振る" }, tapped: (n) => `${n}回タップ`,
     countIn: (n) => `あと${n}拍で始まります`,

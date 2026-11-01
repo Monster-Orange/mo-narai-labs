@@ -8,12 +8,15 @@ export type Locale = (typeof LOCALES)[number];
 // #endregion locale
 
 interface Words {
+  /** With no task: the line it shows instead of a prompt (it's never dead). */
+  practice: string;
   neck: string; send: string; clear: string; spot: (string: number, fret: number, pitch: string) => string;
   listen: string; stop: string; heard: (notes: string) => string; micRefused: string;
 }
 
 const WORDS: Record<Locale, Words> = {
   en: {
+    practice: "Practice: Narai isn't asking anything yet.",
     neck: "Guitar neck",
     send: "Send",
     clear: "Clear",
@@ -24,6 +27,7 @@ const WORDS: Record<Locale, Words> = {
     micRefused: "No microphone. Tap the neck instead.",
   },
   ja: {
+    practice: "練習モード：Narai からの質問はまだありません。",
     neck: "ギターのネック",
     send: "送る",
     clear: "クリア",

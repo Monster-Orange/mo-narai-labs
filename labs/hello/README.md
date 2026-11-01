@@ -10,6 +10,7 @@ It's the first example in the course, *Meet the SDK*: start to finish, it's ever
 - `connect`: the handshake with Narai's host. The start carries the learner's locale, the step's preset
   (`hello.options@1`, the buttons) and the task.
 - `session.answer`: the pick, as `hello.choice@1`. No verdict in it. Narai decides.
+- `session.practice`: with no task, the same pick as practice. The buttons still work, and it says it's practice.
 - `session.ready`: the tool is up, in this language.
 
 No commands, no state, no storage. Those start with the fretboard.
