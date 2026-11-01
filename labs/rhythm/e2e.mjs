@@ -35,6 +35,7 @@ try {
     await page.goto(h.hostUrl);
     const tool = page.frameLocator("iframe");
     await tool.locator(".tap").waitFor({ timeout: 15_000 });
+    await tool.locator(".prompt.practice").getByText("Practice: Narai isn't asking anything yet.").waitFor(); // never dead: it says it's practice
     for (let i = 0; i < 9; i++) await tool.locator(".tap").dispatchEvent("pointerdown");
     await page.waitForTimeout(200);
     assert.equal(h.events.filter((e) => e.type === "tool.practice").length, 0, "nothing reported before the minute");

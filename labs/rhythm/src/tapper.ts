@@ -55,7 +55,7 @@ export function mountTapper(root: HTMLElement, now: () => number = () => perform
     root.replaceChildren();
     if (!preset) return;
     const t = words(locale), cycle = preset;
-    if (task) root.append(Object.assign(document.createElement("p"), { className: "prompt", textContent: task.prompt }));
+    root.append(Object.assign(document.createElement("p"), { className: task ? "prompt" : "prompt practice", textContent: task?.prompt ?? t.practice }));
     const list = document.createElement("ol");
     list.className = "cycle";
     list.setAttribute("aria-label", t.cycle(cycle.name, cycle.beats, cycle.groups));

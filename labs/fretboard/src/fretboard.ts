@@ -59,12 +59,10 @@ export function mountFretboard(root: HTMLElement, now: () => number = () => perf
     const current = preset;
     const t = words(locale);
     const neck = neckOf(preset);
-    if (prompt) {
-      const p = document.createElement("p");
-      p.className = "prompt";
-      p.textContent = prompt;
-      root.append(p);
-    }
+    const p = document.createElement("p");
+    p.className = prompt ? "prompt" : "prompt practice";
+    p.textContent = prompt ?? t.practice; // no task: it says it's practice
+    root.append(p);
     const strings = neck.tuning.length, from = lowest(neck), frets = neck.frets;
     const width = PAD * 2 + OPEN_W + (frets - from) * FRET_W, height = PAD * 2 + STRING_GAP * (strings - 1);
     const svg = document.createElementNS(SVG, "svg");

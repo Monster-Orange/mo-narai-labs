@@ -62,7 +62,7 @@ export function mountTrainer(root: HTMLElement, player: Player, now: () => numbe
     root.replaceChildren();
     if (!preset) return;
     const t = words(locale);
-    if (task) root.append(Object.assign(document.createElement("p"), { className: "prompt", textContent: task.prompt }));
+    root.append(Object.assign(document.createElement("p"), { className: task ? "prompt" : "prompt practice", textContent: task?.prompt ?? t.practice }));
     root.append(button(t.listen, "listen", sound));
 
     const board = document.createElement("div");

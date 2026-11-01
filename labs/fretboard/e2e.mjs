@@ -45,6 +45,19 @@ try {
   assert.deepEqual(answer.payload.notes.map((n) => [n.pitch, n.string, n.fret]), [[61, 2, 2]]);
     assert.ok(seen.some((e) => e.type === "tool.storage.set"), "the pick was kept in storage");
   console.log("e2e: the neck took Narai's preset, reported what it shows, is one tab stop that the arrows move on, kept a pick across a reload and answered in music.played@1");
+  {
+    // with no task it is never dead: it says it's practice
+    const p = await harness("practice");
+    try {
+      const page = await browser.newPage();
+      await page.goto(p.hostUrl);
+      await page.frameLocator("iframe").locator(".prompt.practice").getByText("Practice: Narai isn't asking anything yet.").waitFor({ timeout: 15_000 });
+      await page.close();
+    } finally {
+      await p.close();
+    }
+  }
+  console.log("e2e: with no task the neck says it's practice");
 } finally {
   await browser.close();
   await h.close();

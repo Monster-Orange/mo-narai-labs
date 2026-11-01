@@ -48,6 +48,19 @@ try {
     }
   }
   console.log("e2e: intervals named M3 (music.interval-named@1) and played C#4 (music.played@1), each kept across a reload, its state reported, through the harness");
+  {
+    // with no task it is never dead: it says it's practice
+    const p = await harness("practice");
+    try {
+      const page = await browser.newPage();
+      await page.goto(p.hostUrl);
+      await page.frameLocator("iframe").locator(".prompt.practice").getByText("Practice: Narai isn't asking anything yet.").waitFor({ timeout: 15_000 });
+      await page.close();
+    } finally {
+      await p.close();
+    }
+  }
+  console.log("e2e: with no task the trainer says it's practice");
 } finally {
   await browser.close();
 }

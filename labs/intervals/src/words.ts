@@ -9,10 +9,13 @@ export const LOCALES = ["en", "ja"] as const;
 export type Locale = (typeof LOCALES)[number];
 // #endregion locale
 
-interface Words { listen: string; keyboard: string; intervals: string; send: string; clear: string; interval: Record<Interval, string> }
+interface Words {
+  /** With no task: the line it shows instead of a prompt (it's never dead). */
+  practice: string; listen: string; keyboard: string; intervals: string; send: string; clear: string; interval: Record<Interval, string> }
 
 const WORDS: Record<Locale, Words> = {
   en: {
+    practice: "Practice: Narai isn't asking anything yet.",
     listen: "Listen", keyboard: "Keyboard", intervals: "Intervals", send: "Send", clear: "Clear",
     interval: {
       P1: "Unison", m2: "Minor 2nd", M2: "Major 2nd", m3: "Minor 3rd", M3: "Major 3rd", P4: "Perfect 4th", TT: "Tritone",
@@ -20,6 +23,7 @@ const WORDS: Record<Locale, Words> = {
     },
   },
   ja: {
+    practice: "練習モード：Narai からの質問はまだありません。",
     listen: "聴く", keyboard: "鍵盤", intervals: "音程", send: "送る", clear: "クリア",
     interval: {
       P1: "完全1度", m2: "短2度", M2: "長2度", m3: "短3度", M3: "長3度", P4: "完全4度", TT: "増4度",
