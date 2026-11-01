@@ -1,6 +1,6 @@
 {
   "name": "@narai-labs/hello",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "license": "Apache-2.0",
   "private": true,
   "description": "narai-labs/hello: the smallest tool Narai hosts. One question, a few buttons; the pick is the answer.",

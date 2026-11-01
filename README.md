@@ -60,6 +60,9 @@ pnpm --filter @narai-labs/fretboard dev interval     # or note, scale, practice
 Open the host's address. Every message between host and tool is checked against the tool's manifest, both ways, and
 the harness records each one. A tool's `e2e.mjs` drives the same harness headless and asserts what crossed.
 
+The harness needs no account. To put a tool in a lesson, see the CLI's
+[Getting access](https://github.com/Monster-Orange/mo-narai-cli#getting-access).
+
 ## Narai's music payloads
 
 Every `music.*` name is Narai's: the neck's (`music.neck-preset@1`, `music.neck-state@1`), the notes to show

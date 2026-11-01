@@ -1,6 +1,7 @@
 {
   "id": "narai-labs/intervals",
-  "version": "0.4.1",
+  "name": { "en": "Intervals", "ja": "音程" },
+  "version": "0.4.2",
   "sdk": "^1",
   "publisher": {
     "name": "Narai Labs",
@@ -8,7 +9,7 @@
   },
   "surfaces": {
     "embed": {
-      "url": "https://intervals.tools.michinar.dev/0.4.1/",
+      "url": "https://intervals.tools.michinar.dev/0.4.2/",
       "sdk": "^1"
     }
   },
