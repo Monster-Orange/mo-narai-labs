@@ -1,12 +1,13 @@
 // The fretboard on the page: a neck drawn in SVG as Narai's preset sets it up (its strings, frets and capo, mirrored for
-// a left hand), every position a button. It shows what it is told to highlight (the task's notes, the Tutor's), each
+// a left hand), every position a button, and the neck one tab stop: the arrows move between them, Enter or Space plays
+// (`rove`). It shows what it is told to highlight (the task's notes, the Tutor's), each
 // mark labeled as the preset asks, and the learner's picks. On a task Narai judges it shows Narai's prompt (already in
 // the learner's language), and Send hands the picks to `onAnswer` as a music.played@1 answer. It never says whether
 // they are right. What it shows goes to `onState` (music.neck-state@1) each time it changes; the picks go to `onPicks`.
 // A tap plucks the string. On a step that grants the microphone, Listen hears the learner's own guitar: each note it
 // hears joins the picks (its pitch and time, no place), and only notes leave it.
 import { lowest, pitchAt, pitchName, same, sounding, type Position } from "./theory.ts";
-import { NOTHING, answer, heard, highlighted, neckOf, placed, state, toggle, type Answer, type Mark, type Played, type Preset, type Show, type State } from "./model.ts";
+import { NOTHING, answer, heard, highlighted, neckOf, placed, rove, state, toggle, type Answer, type Mark, type Played, type Preset, type Show, type State } from "./model.ts";
 import { listen, type Listening } from "./mic.ts";
 import type { Player } from "./sound.ts";
 import { words, type Locale } from "./words.ts";
@@ -47,9 +48,12 @@ export function mountFretboard(root: HTMLElement, now: () => number = () => perf
   let send: (a: Answer) => void = () => {};
   let report: (s: State) => void = () => {};
   let keep: (picks: readonly Played[]) => void = () => {};
+  // the one spot in the tab order (a roving tabindex), and whether focus is on the neck, to put back after a redraw
+  let focus: Position | null = null;
   const pick = (list: Played[]) => { picks = list; keep(picks); draw(); };
 
   const draw = () => {
+    const onNeck = !!root.querySelector(".spot:focus");
     root.replaceChildren();
     if (!preset) return;
     const current = preset;
@@ -86,6 +90,11 @@ export function mountFretboard(root: HTMLElement, now: () => number = () => perf
       for (const [a, b] of [[2, 3], [strings - 2, strings - 1]] as const) el("circle", { cx: x(f), cy: (y(a) + y(b)) / 2, r: 5, class: "inlay" });
     }
     for (let s = 1; s <= strings; s++) el("line", { x1: PAD, y1: y(s), x2: width - PAD, y2: y(s), class: `string s${s}` });
+    // the tab stop: where focus was, else the first thing shown, else the first string's lowest note
+    const inNeck = (p: Position) => p.string >= 1 && p.string <= strings && p.fret >= from && p.fret <= frets;
+    const stop: Position = focus && inNeck(focus) ? focus : marks[0]?.position ?? { string: 1, fret: from };
+    focus = stop;
+    let focused: SVGElement | null = null;
 
     for (let s = 1; s <= strings; s++) {
       for (let f = from; f <= frets; f++) {
@@ -94,7 +103,7 @@ export function mountFretboard(root: HTMLElement, now: () => number = () => perf
         const mark = marks.find((m) => same(m.position, position));
         const g = el("g", {
           class: ["spot", mark ? "shown" : "", picked ? "picked" : ""].filter(Boolean).join(" "),
-          role: "button", tabindex: 0, "aria-pressed": String(picked),
+          role: "button", tabindex: same(stop, position) ? 0 : -1, "aria-pressed": String(picked),
           "aria-label": t.spot(s, f, pitchAt(neck, position)),
           "data-string": s, "data-fret": f,
         });
@@ -105,11 +114,25 @@ export function mountFretboard(root: HTMLElement, now: () => number = () => perf
           if (next.length > picks.length) sound.play(sounding(neck, position));
           pick(next);
         };
-        g.addEventListener("click", tap);
-        g.addEventListener("keydown", (e) => { if ((e as KeyboardEvent).key === "Enter" || (e as KeyboardEvent).key === " ") { e.preventDefault(); tap(); } });
+        if (same(stop, position)) focused = g as SVGElement;
+        g.addEventListener("click", () => { focus = position; tap(); });
+        g.addEventListener("keydown", (e) => {
+          const key = (e as KeyboardEvent).key;
+          if (key === "Enter" || key === " ") { e.preventDefault(); focus = position; tap(); return; }
+          const next = rove(current, position, key);
+          if (!next) return;
+          e.preventDefault();
+          focus = next;
+          for (const spot of svg.querySelectorAll<SVGElement>(".spot")) {
+            const here = Number(spot.dataset.string) === next.string && Number(spot.dataset.fret) === next.fret;
+            spot.setAttribute("tabindex", here ? "0" : "-1");
+            if (here) spot.focus();
+          }
+        });
       }
     }
     root.append(svg);
+    if (onNeck) (focused as SVGElement | null)?.focus();
 
     if (mic) {
       const bar = document.createElement("div");

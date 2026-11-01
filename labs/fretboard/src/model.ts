@@ -5,7 +5,7 @@
 // the Tutor's `highlight` otherwise (Narai's music.notes@1: pitches where they sound, pitch classes anywhere), nothing
 // else.
 import type { MusicNeckPreset, MusicNeckState, MusicPlayed } from "@michinarai/sdk";
-import { labelOf, positionsOf, same, sounding, type Neck, type Position } from "./theory.ts";
+import { labelOf, lowest, positionsOf, same, sounding, type Neck, type Position } from "./theory.ts";
 
 /** A payload as it crosses: its body and the SDK's `schema` key. */
 type Wire<T, S extends string> = T & { schema: S; [key: string]: unknown };
@@ -73,6 +73,24 @@ export function toggle(preset: Preset, picks: readonly Played[], position: Posit
   return picks.some((p) => placed(p) && same(p, position))
     ? picks.filter((p) => !(placed(p) && same(p, position)))
     : [...picks, { pitch: sounding(neckOf(preset), position), at_ms, string: position.string, fret: position.fret }];
+}
+
+/** The keyboard on the neck (one tab stop, WAI-ARIA's roving tabindex): where `key` moves focus from `at`, or null when
+ *  the key isn't the neck's. Up and down cross the strings, left and right the frets (mirrored on a left hand's neck,
+ *  as it is drawn), Home and End go to the string's open note (or the capo) and its last fret; the edges hold. */
+export function rove(preset: Preset, at: Position, key: string): Position | null {
+  const neck = neckOf(preset), from = lowest(neck), strings = neck.tuning.length;
+  const toward = preset.handed === "left" ? -1 : 1;
+  const fret = (f: number) => ({ string: at.string, fret: Math.min(neck.frets, Math.max(from, f)) });
+  switch (key) {
+    case "ArrowUp": return { string: Math.max(1, at.string - 1), fret: at.fret };
+    case "ArrowDown": return { string: Math.min(strings, at.string + 1), fret: at.fret };
+    case "ArrowRight": return fret(at.fret + toward);
+    case "ArrowLeft": return fret(at.fret - toward);
+    case "Home": return fret(from);
+    case "End": return fret(neck.frets);
+    default: return null;
+  }
 }
 
 /** A note the microphone heard, after the picks: it has no place, so another tap never takes it back (Clear does). */
