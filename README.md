@@ -18,6 +18,7 @@ upstream to the SDK. No shortcuts around it.
 | [`labs/intervals`](labs/intervals) | An interval trainer. It plays notes; the learner names the interval or plays the note above. |
 | [`labs/rhythm`](labs/rhythm) | A rhythm tapper. The learner taps one cycle of rupak tāl (7 beats, 3 + 2 + 2). |
 | [`labs/hostile`](labs/hostile) | A tool that tries everything it shouldn't. Its tests prove each attempt is stopped. |
+| [`labs/echo`](labs/echo) | A test fixture: it shows the learner's subject with its publisher, or none. Never in a lesson. |
 
 Each folder has its own README: what it shows, which SDK features it uses, how to run it.
 

@@ -39,6 +39,12 @@ importers:
         specifier: 3.2.7
         version: 3.2.7(@types/node@22.20.5)(lightningcss@1.33.0)
 
+  labs/echo:
+    dependencies:
+      '@michinarai/sdk':
+        specifier: 0.3.3
+        version: 0.3.3
+
   labs/fretboard:
     dependencies:
       '@michinarai/sdk':
